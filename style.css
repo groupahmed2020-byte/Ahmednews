@@ -84,7 +84,7 @@ nav ul li a {
     background-color: #e68a00;
 }
 
-/* تنسيق شريط الأخبار العاجلة - الحركة المعكوسة */
+/* تنسيق شريط الأخبار العاجلة - تم تعديل قيم الـ keyframes لتغيير الاتجاه جذرياً */
 .ticker-wrapper {
     display: flex;
     align-items: center;
@@ -126,30 +126,30 @@ nav ul li a {
     padding-left: 50px;
     font-weight: 500;
     font-size: 14px;
-    /* تم إضافة reverse لعكس الحركة */
-    animation: ticker-loop 30s linear infinite reverse;
+    animation: ticker-loop 30s linear infinite;
 }
 
 .ticker-text:hover {
     animation-play-state: paused;
 }
 
+/* عكس البداية والنهاية هنا ليتحرك النص بالعكس تماماً */
 @keyframes ticker-loop {
-    0% { transform: translate3d(0, 0, 0); }
-    100% { transform: translate3d(-100%, 0, 0); }
+    0% { transform: translate3d(-100%, 0, 0); }
+    100% { transform: translate3d(0, 0, 0); }
 }
 
 .ticker-wrapper[dir="ltr"] .ticker-text {
-    /* تم إضافة reverse لعكس الحركة في النسخة الإنجليزية أيضاً */
-    animation: ticker-loop-ltr 30s linear infinite reverse;
+    animation: ticker-loop-ltr 30s linear infinite;
 }
 .ticker-wrapper[dir="ltr"] .ticker-text:hover {
     animation-play-state: paused;
 }
 
+/* عكس الاتجاه للنسخة الإنجليزية أيضاً */
 @keyframes ticker-loop-ltr {
-    0% { transform: translate3d(0, 0, 0); }
-    100% { transform: translate3d(-100%, 0, 0); }
+    0% { transform: translate3d(-100%, 0, 0); }
+    100% { transform: translate3d(0, 0, 0); }
 }
 
 /* تنسيق الجداول والتحكم بلوحة الأدمن */
