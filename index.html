@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقع أحمد الإخباري</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">أحمد الإخباري</div>
+        <nav>
+            <ul>
+                <li><a href="#" id="nav-home">الرئيسية</a></li>
+                <li><a href="#" id="nav-news">أخبار عاجلة</a></li>
+                <li class="nav-controls">
+                    <button id="btn-lang-ar" class="lang-switch-btn active">العربية</button>
+                    <button id="btn-lang-en" class="lang-switch-btn">English</button>
+                    <button id="adminBtn" class="btn-login">دخول الأدمن</button>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="loginModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>تسجيل دخول الأدمن</h3>
+            <input type="text" id="modalUsername" placeholder="أدخل اسم المستخدم" required>
+            <input type="password" id="modalPassword" placeholder="أدخل كلمة المرور" required>
+            <div class="modal-buttons">
+                <button id="submitLoginBtn" class="btn-confirm">دخول</button>
+                <button id="closeLoginBtn" class="btn-cancel">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        
+        <section class="admin-panel" id="adminPanel" style="display: none;">
+            <h3 id="form-title">إضافة خبر جديد</h3>
+            <form id="newsForm">
+                <input type="hidden" id="editDocId">
+                
+                <div class="form-group">
+                    <label for="newsLanguage">لغة الخبر:</label>
+                    <select id="newsLanguage">
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="newsCategory">قسم الخبر:</label>
+                    <select id="newsCategory">
+                        <option value="politics">سياسية</option>
+                        <option value="economy">اقتصادية</option>
+                        <option value="tech">تكنولوجيا</option>
+                        <option value="studies">دراسات وأبحاث</option>
+                    </select>
+                </div>
+
+                <input type="text" id="newsTitle" placeholder="عنوان الخبر" required>
+                <textarea id="newsContent" placeholder="تفاصيل الخبر النصية..." rows="4" required></textarea>
+                
+                <div class="form-group">
+                    <label for="newsImgUrl">أو رابط صورة مباشر (URL):</label>
+                    <input type="url" id="newsImgUrl" placeholder="https://example.com/image.jpg">
+                </div>
+
+                <div class="form-group">
+                    <label for="newsVideoUrl">أو رابط فيديو مباشر / يوتيوب (URL):</label>
+                    <input type="url" id="newsVideoUrl" placeholder="https://example.com/video.mp4 أو رابط يوتيوب">
+                </div>
+
+                <div class="form-group">
+                    <label for="newsFileUrlField">أو رابط مستند / ملف مباشر (URL):</label>
+                    <input type="url" id="newsFileUrlField" placeholder="https://example.com/document.pdf">
+                </div>
+
+                <div class="file-upload-group">
+                    <label for="newsFile">إرفاق ملف / مستند / صورة (من الجهاز):</label>
+                    <input type="file" id="newsFile">
+                </div>
+
+                <div id="uploadProgressContainer" style="display: none; background-color: #ddd; border-radius: 4px; margin-bottom: 12px; height: 10px; overflow: hidden;">
+                    <div id="uploadProgressBar" style="background-color: #ff9800; width: 0%; height: 100%; transition: width 0.2s;"></div>
+                </div>
+
+                <button type="submit" id="btn-publish">نشر الخبر</button>
+                <button type="button" id="btn-cancel-edit" style="background-color: #777; margin-top: 5px; display: none;">إلغاء التعديل</button>
+            </form>
+
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+
+            <h3 style="color: #1a237e; margin-bottom: 15px;">تعديل بيانات حساب الأدمن</h3>
+            <form id="adminUpdateForm">
+                <input type="text" id="newAdminUsername" placeholder="اسم المستخدم الجديد">
+                <input type="password" id="newAdminPassword" placeholder="كلمة المرور الجديدة">
+                <button type="submit" style="background-color: #4caf50; color: white;">حفظ البيانات الجديدة سحابياً</button>
+            </form>
+        </section>
+
+        <div class="categories-filter">
+            <button class="filter-btn active" data-category="all">كل الأخبار</button>
+            <button class="filter-btn" data-category="politics">سياسية</button>
+            <button class="filter-btn" data-category="economy">اقتصادية</button>
+            <button class="filter-btn" data-category="tech">تكنولوجيا</button>
+            <button class="filter-btn" data-category="studies">دراسات وأبحاث</button>
+        </div>
+
+        <h2 id="section-title">آخر الأخبار</h2>
+        
+        <section class="news-container id-container-ar" id="newsContainerAr">
+            <div class="loadingText" style="text-align: center; color: #888;">جاري تحميل الأخبار العربية...</div>
+        </section>
+
+        <section class="news-container id-container-en" id="newsContainerEn" style="display: none;" dir="ltr">
+            <div class="loadingText" style="text-align: center; color: #888;">Loading English News...</div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 موقع أحمد الإخباري. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <script src="script.js" type="module"></script>
+</body>
+</html>
