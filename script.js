@@ -124,31 +124,36 @@ function getYoutubeEmbedUrl(url) {
 // دالة جلب وتحديث شريط الأخبار العاجلة وإظهار لوحة إدارتها للأدمن
 async function loadTickerNews() {
     try {
-        const q = query(collection(db, "breaking_news"), orderBy("timestamp", "desc"));
-        const querySnapshot = await getDocs(q);
+        let querySnapshot;
+        // محاولة جلب البيانات مرتبة زمنياً، وإذا لم تكن الفهرسة جاهزة تسحب البيانات مباشرة كخطة بديلة
+        try {
+            const q = query(collection(db, "breaking_news"), orderBy("timestamp", "desc"));
+            querySnapshot = await getDocs(q);
+        } catch (orderError) {
+            console.warn("Firestore Index is loading, falling back to unordered fetch.");
+            querySnapshot = await getDocs(collection(db, "breaking_news"));
+        }
         
         let tickerTitles = [];
-        if (isAdminLoggedIn) tickerAdminList.innerHTML = "";
+        if (tickerAdminList) tickerAdminList.innerHTML = "";
         
         querySnapshot.forEach((docSnap) => {
             const tickerData = docSnap.data();
             const id = docSnap.id;
 
-            // تجميع الأخبار العاجلة للشريط العام بحسب اللغة المختارة للشاشة
             if (tickerData.language === currentLanguage) {
                 tickerTitles.push(tickerData.text);
             }
 
-            // إذا كان الأدمن مسجل دخوله، نقوم ببناء جدول التحكم في لوحة الأدمن
-            if (isAdminLoggedIn) {
+            if (isAdminLoggedIn && tickerAdminList) {
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = "1px solid #ddd";
                 tr.innerHTML = `
-                    <td style="padding: 8px;">${tickerData.language === 'en' ? 'English' : 'العربية'}</td>
-                    <td style="padding: 8px; word-break: break-all;">${tickerData.text}</td>
-                    <td style="padding: 8px; text-align: center; white-space: nowrap;">
-                        <button class="btn-ticker-edit" data-id="${id}" data-text="${tickerData.text}" data-lang="${tickerData.language}" style="background-color:#ff9800; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; margin-left:5px;">تعديل</button>
-                        <button class="btn-ticker-delete" data-id="${id}" style="background-color:#f44336; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">حذف</button>
+                    <td style="padding: 10px;">${tickerData.language === 'en' ? 'English' : 'العربية'}</td>
+                    <td style="padding: 10px; word-break: break-all;">${tickerData.text}</td>
+                    <td style="padding: 10px; text-align: center; white-space: nowrap;">
+                        <button class="btn-ticker-edit" data-id="${id}" data-text="${tickerData.text}" data-lang="${tickerData.language}" style="background-color:#ff9800; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-left:5px; font-weight:bold;">تعديل</button>
+                        <button class="btn-ticker-delete" data-id="${id}" style="background-color:#f44336; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">حذف</button>
                     </td>
                 `;
                 tickerAdminList.appendChild(tr);
@@ -170,7 +175,6 @@ async function loadTickerNews() {
     }
 }
 
-// إضافة المستمعات لأزرار التعديل والحذف الخاصة بالأخبار العاجلة داخل جدول الأدمن
 function addTickerActionsListeners() {
     document.querySelectorAll('.btn-ticker-delete').forEach(btn => {
         btn.addEventListener('click', async (e) => {
@@ -210,7 +214,6 @@ function resetTickerForm() {
     btnCancelTickerEdit.style.display = "none";
 }
 
-// معالجة إرسال فورم الخبر العاجل (إضافة أو تعديل)
 tickerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = editTickerId.value;
@@ -462,6 +465,5 @@ newsForm.addEventListener('submit', async (e) => {
     }
 });
 
-// التشغيل الأولي للموقع والشريط الإخباري
 loadNews();
 loadTickerNews();

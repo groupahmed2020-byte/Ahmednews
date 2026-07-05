@@ -150,10 +150,34 @@ nav ul li a {
     100% { transform: translate3d(-100%, 0, 0); }
 }
 
-/* تنسيق الجداول والتحكم بلوحة الأدمن */
-table th, table td {
-    border: 1px solid #ddd;
-    padding: 8px;
+/* التنسيق الشامل والمحسّن لجداول التحكم داخل لوحة الأدمن */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background-color: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+table th {
+    background-color: #1a237e;
+    color: white;
+    padding: 12px 10px;
+    font-weight: bold;
+    font-size: 14px;
+    border: 1px solid #1a237e;
+}
+
+table td {
+    padding: 12px 10px;
+    border: 1px solid #e0e0e0;
+    font-size: 13px;
+    color: #444;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
 }
 
 .modal {
