@@ -84,7 +84,7 @@ nav ul li a {
     background-color: #e68a00;
 }
 
-/* تنسيق شريط الأخبار العاجلة */
+/* تنسيق شريط الأخبار العاجلة - الحركة المعكوسة */
 .ticker-wrapper {
     display: flex;
     align-items: center;
@@ -126,7 +126,8 @@ nav ul li a {
     padding-left: 50px;
     font-weight: 500;
     font-size: 14px;
-    animation: ticker-loop 30s linear infinite;
+    /* تم إضافة reverse لعكس الحركة */
+    animation: ticker-loop 30s linear infinite reverse;
 }
 
 .ticker-text:hover {
@@ -139,7 +140,8 @@ nav ul li a {
 }
 
 .ticker-wrapper[dir="ltr"] .ticker-text {
-    animation: ticker-loop-ltr 30s linear infinite;
+    /* تم إضافة reverse لعكس الحركة في النسخة الإنجليزية أيضاً */
+    animation: ticker-loop-ltr 30s linear infinite reverse;
 }
 .ticker-wrapper[dir="ltr"] .ticker-text:hover {
     animation-play-state: paused;
