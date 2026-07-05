@@ -84,7 +84,7 @@ nav ul li a {
     background-color: #e68a00;
 }
 
-/* تنسيق شريط الأخبار العاجلة الجديد بالتأثير الحركي المنساب */
+/* تنسيق شريط الأخبار العاجلة */
 .ticker-wrapper {
     display: flex;
     align-items: center;
@@ -108,7 +108,6 @@ nav ul li a {
     white-space: nowrap;
 }
 
-/* اتجاه الحركة يعتمد على خصائص الـ dir المضافة برمجياً */
 .ticker-wrapper[dir="rtl"] .ticker-title {
     box-shadow: -3px 0 10px rgba(0,0,0,0.2);
 }
@@ -130,21 +129,15 @@ nav ul li a {
     animation: ticker-loop 30s linear infinite;
 }
 
-/* إيقاف الحركة مؤقتاً عند مرور الماوس لتسهيل القراءة */
 .ticker-text:hover {
     animation-play-state: paused;
 }
 
 @keyframes ticker-loop {
-    0% {
-        transform: translate3d(0, 0, 0);
-    }
-    100% {
-        transform: translate3d(-100%, 0, 0);
-    }
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-100%, 0, 0); }
 }
 
-/* تعديل حركة الأنميشن في حال كانت اللغة إنجليزية لتعمل من اليسار إلى اليمين بشكل متناسق */
 .ticker-wrapper[dir="ltr"] .ticker-text {
     animation: ticker-loop-ltr 30s linear infinite;
 }
@@ -153,12 +146,14 @@ nav ul li a {
 }
 
 @keyframes ticker-loop-ltr {
-    0% {
-        transform: translate3d(0, 0, 0);
-    }
-    100% {
-        transform: translate3d(-100%, 0, 0);
-    }
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-100%, 0, 0); }
+}
+
+/* تنسيق الجداول والتحكم بلوحة الأدمن */
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
 }
 
 .modal {

@@ -98,6 +98,37 @@
                 <button type="button" id="btn-cancel-edit" style="background-color: #777; margin-top: 5px; display: none;">إلغاء التعديل</button>
             </form>
 
+            <hr style="margin: 20px 0; border: 0; border-top: 2px dashed #ccc;">
+
+            <h3 id="ticker-form-title" style="color: #d32f2f;">إدارة شريط الأخبار العاجلة</h3>
+            <form id="tickerForm" style="margin-bottom: 20px;">
+                <input type="hidden" id="editTickerId">
+                <div class="form-group">
+                    <label for="tickerLanguage">لغة الخبر العاجل:</label>
+                    <select id="tickerLanguage">
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                <input type="text" id="tickerInputText" placeholder="اكتب نص الخبر العاجل هنا..." required style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                <button type="submit" id="btn-publish-ticker" style="background-color: #d32f2f; color: white; border: none; padding: 10px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 4px;">حفظ ونشر في شريط العاجل</button>
+                <button type="button" id="btn-cancel-ticker-edit" style="background-color: #777; color: white; margin-top: 5px; display: none; width: 100%; padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">إلغاء تعديل العاجل</button>
+            </form>
+
+            <div style="overflow-x: auto; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse; text-align: right; font-size: 14px;" id="tickerAdminTable">
+                    <thead>
+                        <tr style="background-color: #f2f2f2; border-bottom: 2px solid #ccc;">
+                            <th style="padding: 8px;">اللغة</th>
+                            <th style="padding: 8px;">نص الخبر العاجل</th>
+                            <th style="padding: 8px; text-align: center;">التحكم</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tickerAdminList">
+                        </tbody>
+                </table>
+            </div>
+
             <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
 
             <h3 style="color: #1a237e; margin-bottom: 15px;">تعديل بيانات حساب الأدمن</h3>

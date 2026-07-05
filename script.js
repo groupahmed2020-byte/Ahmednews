@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -16,7 +16,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// عناصر الواجهة
+// عناصر الواجهة الأساسية
 const adminBtn = document.getElementById('adminBtn');
 const adminPanel = document.getElementById('adminPanel');
 const loginModal = document.getElementById('loginModal');
@@ -44,14 +44,22 @@ const newsContainerEn = document.getElementById('newsContainerEn');
 const btnLangAr = document.getElementById('btn-lang-ar');
 const btnLangEn = document.getElementById('btn-lang-en');
 
-// عناصر شريط الأخبار العاجلة الجديد
+// عناصر شريط الأخبار العاجلة الجديد وإدارته
 const tickerWrapper = document.getElementById('tickerWrapper');
 const tickerTitle = document.getElementById('tickerTitle');
 const tickerText = document.getElementById('tickerText');
 
+const tickerForm = document.getElementById('tickerForm');
+const editTickerId = document.getElementById('editTickerId');
+const tickerLanguage = document.getElementById('tickerLanguage');
+const tickerInputText = document.getElementById('tickerInputText');
+const btnPublishTicker = document.getElementById('btn-publish-ticker');
+const btnCancelTickerEdit = document.getElementById('btn-cancel-ticker-edit');
+const tickerAdminList = document.getElementById('tickerAdminList');
+
 let isAdminLoggedIn = false;
 let currentSelectedCategory = "all";
-let currentLanguage = "ar"; // لمتابعة اللغة المفتوحة حالياً
+let currentLanguage = "ar";
 
 btnLangAr.addEventListener('click', () => {
     btnLangAr.classList.add('active');
@@ -61,7 +69,7 @@ btnLangAr.addEventListener('click', () => {
     currentLanguage = "ar";
     tickerWrapper.setAttribute('dir', 'rtl');
     tickerTitle.innerText = "عاجل";
-    loadTickerNews(); // تحديث شريط العاجل للغة العربية
+    loadTickerNews();
 });
 
 btnLangEn.addEventListener('click', () => {
@@ -72,7 +80,7 @@ btnLangEn.addEventListener('click', () => {
     currentLanguage = "en";
     tickerWrapper.setAttribute('dir', 'ltr');
     tickerTitle.innerText = "Breaking";
-    loadTickerNews(); // تحديث شريط العاجل للغة الإنجليزية
+    loadTickerNews();
 });
 
 adminBtn.addEventListener('click', () => {
@@ -86,6 +94,7 @@ adminBtn.addEventListener('click', () => {
         adminBtn.innerText = "دخول الأدمن";
         isAdminLoggedIn = false;
         loadNews();
+        loadTickerNews();
     }
 });
 
@@ -99,6 +108,7 @@ submitLoginBtn.addEventListener('click', () => {
         isAdminLoggedIn = true;
         alert("تم تسجيل الدخول بنجاح!");
         loadNews();
+        loadTickerNews();
     } else {
         alert("اسم المستخدم أو كلمة المرور غير صحيحة!");
     }
@@ -111,33 +121,121 @@ function getYoutubeEmbedUrl(url) {
     return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
 }
 
-// دالة جلب وتحديث شريط الأخبار العاجلة تلقائياً بناءً على آخر 5 أخبار
+// دالة جلب وتحديث شريط الأخبار العاجلة وإظهار لوحة إدارتها للأدمن
 async function loadTickerNews() {
     try {
-        const q = query(collection(db, "news"), orderBy("timestamp", "desc"));
+        const q = query(collection(db, "breaking_news"), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(q);
+        
         let tickerTitles = [];
+        if (isAdminLoggedIn) tickerAdminList.innerHTML = "";
         
         querySnapshot.forEach((docSnap) => {
-            const news = docSnap.data();
-            if (news.language === currentLanguage && tickerTitles.length < 5) {
-                tickerTitles.push(news.title);
+            const tickerData = docSnap.data();
+            const id = docSnap.id;
+
+            // تجميع الأخبار العاجلة للشريط العام بحسب اللغة المختارة للشاشة
+            if (tickerData.language === currentLanguage) {
+                tickerTitles.push(tickerData.text);
+            }
+
+            // إذا كان الأدمن مسجل دخوله، نقوم ببناء جدول التحكم في لوحة الأدمن
+            if (isAdminLoggedIn) {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = "1px solid #ddd";
+                tr.innerHTML = `
+                    <td style="padding: 8px;">${tickerData.language === 'en' ? 'English' : 'العربية'}</td>
+                    <td style="padding: 8px; word-break: break-all;">${tickerData.text}</td>
+                    <td style="padding: 8px; text-align: center; white-space: nowrap;">
+                        <button class="btn-ticker-edit" data-id="${id}" data-text="${tickerData.text}" data-lang="${tickerData.language}" style="background-color:#ff9800; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; margin-left:5px;">تعديل</button>
+                        <button class="btn-ticker-delete" data-id="${id}" style="background-color:#f44336; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">حذف</button>
+                    </td>
+                `;
+                tickerAdminList.appendChild(tr);
             }
         });
 
         if (tickerTitles.length > 0) {
-            // دمج العناوين بفاصل مميز وتحديث النص داخل الشريط
             const separator = currentLanguage === 'en' ? "   •   " : "   ◀   ";
             tickerText.innerText = tickerTitles.join(separator);
         } else {
             tickerText.innerText = currentLanguage === 'en' ? "No breaking news at the moment." : "لا توجد أخبار عاجلة حالياً.";
+        }
+
+        if (isAdminLoggedIn) {
+            addTickerActionsListeners();
         }
     } catch (error) {
         console.error("Error loading ticker: ", error);
     }
 }
 
-// دالة جلب وعرض الأخبار في الكروت
+// إضافة المستمعات لأزرار التعديل والحذف الخاصة بالأخبار العاجلة داخل جدول الأدمن
+function addTickerActionsListeners() {
+    document.querySelectorAll('.btn-ticker-delete').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const id = e.target.getAttribute('data-id');
+            if (confirm("هل أنت متأكد من حذف هذا الخبر العاجل نهائياً؟")) {
+                await deleteDoc(doc(db, "breaking_news", id));
+                alert("تم حذف الخبر العاجل بنجاح!");
+                loadTickerNews();
+            }
+        });
+    });
+
+    document.querySelectorAll('.btn-ticker-edit').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = e.target.getAttribute('data-id');
+            const text = e.target.getAttribute('data-text');
+            const lang = e.target.getAttribute('data-lang');
+
+            editTickerId.value = id;
+            tickerInputText.value = text;
+            tickerLanguage.value = lang;
+
+            document.getElementById('ticker-form-title').innerText = "تعديل الخبر العاجل الحالي";
+            btnPublishTicker.innerText = "حفظ تعديل الخبر العاجل";
+            btnCancelTickerEdit.style.display = "block";
+        });
+    });
+}
+
+btnCancelTickerEdit.addEventListener('click', () => { resetTickerForm(); });
+
+function resetTickerForm() {
+    tickerForm.reset();
+    editTickerId.value = "";
+    document.getElementById('ticker-form-title').innerText = "إدارة شريط الأخبار العاجلة";
+    btnPublishTicker.innerText = "حفظ ونشر في شريط العاجل";
+    btnCancelTickerEdit.style.display = "none";
+}
+
+// معالجة إرسال فورم الخبر العاجل (إضافة أو تعديل)
+tickerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = editTickerId.value;
+    const lang = tickerLanguage.value;
+    const text = tickerInputText.value.trim();
+
+    let tickerData = { language: lang, text: text };
+
+    try {
+        if (id) {
+            await updateDoc(doc(db, "breaking_news", id), tickerData);
+            alert("تم تحديث الخبر العاجل بنجاح!");
+        } else {
+            tickerData.timestamp = new Date();
+            await addDoc(collection(db, "breaking_news"), tickerData);
+            alert("تم نشر الخبر العاجل بنجاح!");
+        }
+        resetTickerForm();
+        loadTickerNews();
+    } catch (error) {
+        console.error("Error saving ticker: ", error);
+    }
+});
+
+// دالة جلب وعرض الأخبار العادية
 async function loadNews() {
     try {
         const q = query(collection(db, "news"), orderBy("timestamp", "desc"));
@@ -265,7 +363,6 @@ function addActionsEventListeners() {
                 await deleteDoc(doc(db, "news", id));
                 alert("تم حذف البوست بنجاح!");
                 loadNews();
-                loadTickerNews(); // تحديث الشريط عند الحذف
             }
         });
     });
@@ -358,7 +455,6 @@ newsForm.addEventListener('submit', async (e) => {
         uploadProgressContainer.style.display = 'none';
         uploadProgressBar.style.width = '0%';
         loadNews();
-        loadTickerNews(); // تحديث شريط العاجل فوراً بعد النشر أو التعديل
         
     } catch (error) {
         console.error(error);
@@ -366,6 +462,6 @@ newsForm.addEventListener('submit', async (e) => {
     }
 });
 
-// التشغيل الأولي عند فتح الصفحة
+// التشغيل الأولي للموقع والشريط الإخباري
 loadNews();
 loadTickerNews();
