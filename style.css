@@ -84,7 +84,7 @@ nav ul li a {
     background-color: #e68a00;
 }
 
-/* شريط الأخبار العاجلة */
+/* تنسيق شريط الأخبار العاجلة */
 .ticker-wrapper {
     display: flex;
     align-items: center;
@@ -119,68 +119,41 @@ nav ul li a {
     align-items: center;
 }
 
-.ticker-wrapper[dir="rtl"] .ticker-text {
+.ticker-text {
     display: inline-block;
     white-space: nowrap;
     padding-right: 50px;
     padding-left: 50px;
     font-weight: 500;
     font-size: 14px;
-    animation: ticker-loop-ar 30s linear infinite;
-}
-
-.ticker-wrapper[dir="ltr"] .ticker-text {
-    display: inline-block;
-    white-space: nowrap;
-    padding-right: 50px;
-    padding-left: 50px;
-    font-weight: 500;
-    font-size: 14px;
-    animation: ticker-loop-en 30s linear infinite;
+    animation: ticker-loop 30s linear infinite;
 }
 
 .ticker-text:hover {
     animation-play-state: paused;
 }
 
-@keyframes ticker-loop-ar {
-    0% { transform: translate3d(-100%, 0, 0); }
-    100% { transform: translate3d(100%, 0, 0); }
+@keyframes ticker-loop {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-100%, 0, 0); }
 }
 
-@keyframes ticker-loop-en {
-    0% { transform: translate3d(100%, 0, 0); }
+.ticker-wrapper[dir="ltr"] .ticker-text {
+    animation: ticker-loop-ltr 30s linear infinite;
+}
+.ticker-wrapper[dir="ltr"] .ticker-text:hover {
+    animation-play-state: paused;
+}
+
+@keyframes ticker-loop-ltr {
+    0% { transform: translate3d(0, 0, 0); }
     100% { transform: translate3d(-100%, 0, 0); }
 }
 
 /* تنسيق الجداول والتحكم بلوحة الأدمن */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    background-color: #fff;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-table th {
-    background-color: #1a237e;
-    color: white;
-    padding: 12px 10px;
-    font-weight: bold;
-    font-size: 14px;
-    border: 1px solid #1a237e;
-}
-
-table td {
-    padding: 12px 10px;
-    border: 1px solid #e0e0e0;
-    font-size: 13px;
-    color: #444;
-}
-
-table tr:nth-child(even) {
-    background-color: #f9f9f9;
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
 }
 
 .modal {

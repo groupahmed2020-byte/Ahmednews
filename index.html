@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>موقع أحمد الإخباري</title>
     <link rel="stylesheet" href="style.css">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -36,11 +35,6 @@
             <h3>تسجيل دخول الأدمن</h3>
             <input type="text" id="modalUsername" placeholder="أدخل اسم المستخدم" required>
             <input type="password" id="modalPassword" placeholder="أدخل كلمة المرور" required>
-            
-            <div style="text-align: right; margin-bottom: 15px;">
-                <a href="#" id="forgotPasswordBtn" style="color: #d32f2f; font-size: 13px; text-decoration: none; font-weight: bold;">نسيت كلمة المرور؟</a>
-            </div>
-
             <div class="modal-buttons">
                 <button id="submitLoginBtn" class="btn-confirm">دخول</button>
                 <button id="closeLoginBtn" class="btn-cancel">إلغاء</button>
@@ -130,7 +124,8 @@
                             <th style="padding: 8px; text-align: center;">التحكم</th>
                         </tr>
                     </thead>
-                    <tbody id="tickerAdminList"></tbody>
+                    <tbody id="tickerAdminList">
+                        </tbody>
                 </table>
             </div>
 
