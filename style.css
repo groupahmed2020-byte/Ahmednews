@@ -84,6 +84,83 @@ nav ul li a {
     background-color: #e68a00;
 }
 
+/* تنسيق شريط الأخبار العاجلة الجديد بالتأثير الحركي المنساب */
+.ticker-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #d32f2f;
+    color: white;
+    height: 40px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.ticker-title {
+    background-color: #b71c1c;
+    padding: 0 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    z-index: 10;
+    box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+    white-space: nowrap;
+}
+
+/* اتجاه الحركة يعتمد على خصائص الـ dir المضافة برمجياً */
+.ticker-wrapper[dir="rtl"] .ticker-title {
+    box-shadow: -3px 0 10px rgba(0,0,0,0.2);
+}
+
+.ticker-container {
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.ticker-text {
+    display: inline-block;
+    white-space: nowrap;
+    padding-right: 50px;
+    padding-left: 50px;
+    font-weight: 500;
+    font-size: 14px;
+    animation: ticker-loop 30s linear infinite;
+}
+
+/* إيقاف الحركة مؤقتاً عند مرور الماوس لتسهيل القراءة */
+.ticker-text:hover {
+    animation-play-state: paused;
+}
+
+@keyframes ticker-loop {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(-100%, 0, 0);
+    }
+}
+
+/* تعديل حركة الأنميشن في حال كانت اللغة إنجليزية لتعمل من اليسار إلى اليمين بشكل متناسق */
+.ticker-wrapper[dir="ltr"] .ticker-text {
+    animation: ticker-loop-ltr 30s linear infinite;
+}
+.ticker-wrapper[dir="ltr"] .ticker-text:hover {
+    animation-play-state: paused;
+}
+
+@keyframes ticker-loop-ltr {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(-100%, 0, 0);
+    }
+}
+
 .modal {
     position: fixed;
     z-index: 1000;

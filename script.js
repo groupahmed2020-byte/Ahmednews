@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -28,7 +28,6 @@ const closeLoginBtn = document.getElementById('closeLoginBtn');
 const newsForm = document.getElementById('newsForm');
 const newsFile = document.getElementById('newsFile');
 
-// استدعاء حقول الروابط المباشرة الجديدة
 const newsImgUrl = document.getElementById('newsImgUrl');
 const newsVideoUrl = document.getElementById('newsVideoUrl');
 const newsFileUrlField = document.getElementById('newsFileUrlField');
@@ -45,14 +44,24 @@ const newsContainerEn = document.getElementById('newsContainerEn');
 const btnLangAr = document.getElementById('btn-lang-ar');
 const btnLangEn = document.getElementById('btn-lang-en');
 
+// عناصر شريط الأخبار العاجلة الجديد
+const tickerWrapper = document.getElementById('tickerWrapper');
+const tickerTitle = document.getElementById('tickerTitle');
+const tickerText = document.getElementById('tickerText');
+
 let isAdminLoggedIn = false;
 let currentSelectedCategory = "all";
+let currentLanguage = "ar"; // لمتابعة اللغة المفتوحة حالياً
 
 btnLangAr.addEventListener('click', () => {
     btnLangAr.classList.add('active');
     btnLangEn.classList.remove('active');
     newsContainerAr.style.display = "flex";
     newsContainerEn.style.display = "none";
+    currentLanguage = "ar";
+    tickerWrapper.setAttribute('dir', 'rtl');
+    tickerTitle.innerText = "عاجل";
+    loadTickerNews(); // تحديث شريط العاجل للغة العربية
 });
 
 btnLangEn.addEventListener('click', () => {
@@ -60,6 +69,10 @@ btnLangEn.addEventListener('click', () => {
     btnLangAr.classList.remove('active');
     newsContainerEn.style.display = "flex";
     newsContainerAr.style.display = "none";
+    currentLanguage = "en";
+    tickerWrapper.setAttribute('dir', 'ltr');
+    tickerTitle.innerText = "Breaking";
+    loadTickerNews(); // تحديث شريط العاجل للغة الإنجليزية
 });
 
 adminBtn.addEventListener('click', () => {
@@ -91,7 +104,6 @@ submitLoginBtn.addEventListener('click', () => {
     }
 });
 
-// دالة لمعالجة روابط يوتيوب وتحويلها لصيغة embed قابلة للتشغيل داخل iframe
 function getYoutubeEmbedUrl(url) {
     if (!url) return null;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -99,7 +111,33 @@ function getYoutubeEmbedUrl(url) {
     return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
 }
 
-// دالة جلب وعرض الأخبار
+// دالة جلب وتحديث شريط الأخبار العاجلة تلقائياً بناءً على آخر 5 أخبار
+async function loadTickerNews() {
+    try {
+        const q = query(collection(db, "news"), orderBy("timestamp", "desc"));
+        const querySnapshot = await getDocs(q);
+        let tickerTitles = [];
+        
+        querySnapshot.forEach((docSnap) => {
+            const news = docSnap.data();
+            if (news.language === currentLanguage && tickerTitles.length < 5) {
+                tickerTitles.push(news.title);
+            }
+        });
+
+        if (tickerTitles.length > 0) {
+            // دمج العناوين بفاصل مميز وتحديث النص داخل الشريط
+            const separator = currentLanguage === 'en' ? "   •   " : "   ◀   ";
+            tickerText.innerText = tickerTitles.join(separator);
+        } else {
+            tickerText.innerText = currentLanguage === 'en' ? "No breaking news at the moment." : "لا توجد أخبار عاجلة حالياً.";
+        }
+    } catch (error) {
+        console.error("Error loading ticker: ", error);
+    }
+}
+
+// دالة جلب وعرض الأخبار في الكروت
 async function loadNews() {
     try {
         const q = query(collection(db, "news"), orderBy("timestamp", "desc"));
@@ -131,10 +169,8 @@ async function loadNews() {
                 categoryText = categoryMapAr[news.category] || "عام";
             }
             
-            // بناء الميديا (فيديو - صورة - مستند) بشكل منفصل ومنظم
             let mediaHtml = "";
 
-            // 1. معالجة وعرض الفيديو
             if (news.videoUrl) {
                 const ytEmbed = getYoutubeEmbedUrl(news.videoUrl);
                 if (ytEmbed) {
@@ -144,7 +180,6 @@ async function loadNews() {
                 }
             }
 
-            // 2. معالجة وعرض الصورة (سواء رابط نصي أو مرفوعة من الجهاز)
             let finalImgUrl = news.imgUrl || "";
             if (!finalImgUrl && news.fileUrl) {
                 const isUploadedImage = news.fileUrl.match(/\.(jpeg|jpg|gif|png|webp)/i) || (news.fileType && news.fileType.startsWith('image/'));
@@ -156,11 +191,9 @@ async function loadNews() {
             if (finalImgUrl) {
                 mediaHtml += `<img src="${finalImgUrl}" alt="صورة الخبر" style="width:100%; max-height:350px; object-fit:cover; border-radius:6px; margin-bottom:15px;">`;
             } else if (!news.videoUrl) {
-                // صورة افتراضية فقط إذا لم يتوفر أي صورة أو فيديو للخبر
                 mediaHtml += `<img src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600" alt="صورة افتراضية" style="width:100%; max-height:350px; object-fit:cover; border-radius:6px; margin-bottom:15px;">`;
             }
 
-            // 3. معالجة وعرض المستند والملف المرفق
             let finalDocUrl = news.fileUrlField || "";
             if (!finalDocUrl && news.fileUrl) {
                 const isUploadedImage = news.fileUrl.match(/\.(jpeg|jpg|gif|png|webp)/i) || (news.fileType && news.fileType.startsWith('image/'));
@@ -192,7 +225,6 @@ async function loadNews() {
                 ${adminActionsHtml}
             `;
 
-            // حفظ الداتا في الـ dataset لإرجاعها للحقول عند التعديل
             newsCard.dataset.imgUrl = news.imgUrl || "";
             newsCard.dataset.videoUrl = news.videoUrl || "";
             newsCard.dataset.fileUrlField = news.fileUrlField || "";
@@ -233,6 +265,7 @@ function addActionsEventListeners() {
                 await deleteDoc(doc(db, "news", id));
                 alert("تم حذف البوست بنجاح!");
                 loadNews();
+                loadTickerNews(); // تحديث الشريط عند الحذف
             }
         });
     });
@@ -248,7 +281,6 @@ function addActionsEventListeners() {
             document.getElementById('newsTitle').value = title;
             document.getElementById('newsContent').value = content;
             
-            // تعبئة حقول الروابط عند التعديل
             newsImgUrl.value = card.dataset.imgUrl || "";
             newsVideoUrl.value = card.dataset.videoUrl || "";
             newsFileUrlField.value = card.dataset.fileUrlField || "";
@@ -281,7 +313,6 @@ newsForm.addEventListener('submit', async (e) => {
     const content = document.getElementById('newsContent').value;
     const selectedFile = newsFile.files[0];
     
-    // بناء كائن البيانات ليشمل الحقول النصية للروابط المباشرة
     let data = { 
         language: lang, 
         category: category, 
@@ -327,6 +358,7 @@ newsForm.addEventListener('submit', async (e) => {
         uploadProgressContainer.style.display = 'none';
         uploadProgressBar.style.width = '0%';
         loadNews();
+        loadTickerNews(); // تحديث شريط العاجل فوراً بعد النشر أو التعديل
         
     } catch (error) {
         console.error(error);
@@ -334,4 +366,6 @@ newsForm.addEventListener('submit', async (e) => {
     }
 });
 
+// التشغيل الأولي عند فتح الصفحة
 loadNews();
+loadTickerNews();
