@@ -119,38 +119,45 @@ nav ul li a {
     align-items: center;
 }
 
-.ticker-text {
+/* حركة الشريط العربي: من اليسار نحو اليمين */
+.ticker-wrapper[dir="rtl"] .ticker-text {
     display: inline-block;
     white-space: nowrap;
     padding-right: 50px;
     padding-left: 50px;
     font-weight: 500;
     font-size: 14px;
-    animation: ticker-loop 30s linear infinite;
+    animation: ticker-loop-ar 30s linear infinite;
+}
+
+/* حركة الشريط الإنجليزي: من اليمين نحو اليسار */
+.ticker-wrapper[dir="ltr"] .ticker-text {
+    display: inline-block;
+    white-space: nowrap;
+    padding-right: 50px;
+    padding-left: 50px;
+    font-weight: 500;
+    font-size: 14px;
+    animation: ticker-loop-en 30s linear infinite;
 }
 
 .ticker-text:hover {
     animation-play-state: paused;
 }
 
-@keyframes ticker-loop {
-    0% { transform: translate3d(0, 0, 0); }
+/* أنميشن الواجهة العربية: النص يتحرك باتجاه اليمين */
+@keyframes ticker-loop-ar {
+    0% { transform: translate3d(-100%, 0, 0); }
+    100% { transform: translate3d(100%, 0, 0); }
+}
+
+/* أنميشن الواجهة الإنجليزية: النص يتحرك باتجاه اليسار */
+@keyframes ticker-loop-en {
+    0% { transform: translate3d(100%, 0, 0); }
     100% { transform: translate3d(-100%, 0, 0); }
 }
 
-.ticker-wrapper[dir="ltr"] .ticker-text {
-    animation: ticker-loop-ltr 30s linear infinite;
-}
-.ticker-wrapper[dir="ltr"] .ticker-text:hover {
-    animation-play-state: paused;
-}
-
-@keyframes ticker-loop-ltr {
-    0% { transform: translate3d(0, 0, 0); }
-    100% { transform: translate3d(-100%, 0, 0); }
-}
-
-/* التنسيق الشامل والمحسّن لجداول التحكم داخل لوحة الأدمن */
+/* تنسيق الجداول والتحكم بلوحة الأدمن */
 table {
     width: 100%;
     border-collapse: collapse;
