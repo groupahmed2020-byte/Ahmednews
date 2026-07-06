@@ -57,20 +57,16 @@ const btnPublishTicker = document.getElementById('btn-publish-ticker');
 const btnCancelTickerEdit = document.getElementById('btn-cancel-ticker-edit');
 const tickerAdminList = document.getElementById('tickerAdminList');
 
-// متغيرات الصلاحية الجديدة والمستخدم الحالي
+// العناصر الجديدة لإدارة الأعضاء
+const mainAdminOnlySection = document.getElementById('mainAdminOnlySection');
+const addUserForm = document.getElementById('addUserForm');
+const newMemberName = document.getElementById('newMemberName');
+const newMemberUsername = document.getElementById('newMemberUsername');
+const newMemberPassword = document.getElementById('newMemberPassword');
+
 let isAdminLoggedIn = false;
-let currentUserRole = null; 
-let currentUserDocId = null;
 let currentSelectedCategory = "all";
 let currentLanguage = "ar";
-
-// عناصر واجهة إدارة الأعضاء المضافة حديثاً للآدمن الرئيسي
-const superAdminSection = document.getElementById('superAdminSection');
-const addMemberForm = document.getElementById('addMemberForm');
-const memberUsername = document.getElementById('memberUsername');
-const memberPassword = document.getElementById('memberPassword');
-const membersListTable = document.getElementById('membersListTable');
-const adminUpdateForm = document.getElementById('adminUpdateForm');
 
 btnLangAr.addEventListener('click', () => {
     btnLangAr.classList.add('active');
@@ -104,9 +100,6 @@ adminBtn.addEventListener('click', () => {
         adminPanel.style.display = 'none';
         adminBtn.innerText = "دخول الأدمن";
         isAdminLoggedIn = false;
-        currentUserRole = null;
-        currentUserDocId = null;
-        superAdminSection.style.display = 'none';
         loadNews();
         loadTickerNews();
     }
@@ -114,58 +107,95 @@ adminBtn.addEventListener('click', () => {
 
 closeLoginBtn.addEventListener('click', () => { loginModal.style.display = 'none'; });
 
-// تسجيل دخول سحابي مع فحص رتبة العضو وصلاحياته
+// منطق التحقق المزدوج: أدمن رئيسي أو مستخدم سحابي
 submitLoginBtn.addEventListener('click', async () => {
-    const enteredUser = modalUsername.value.trim();
-    const enteredPass = modalPassword.value.trim();
+    const userVal = modalUsername.value.trim();
+    const passVal = modalPassword.value.trim();
 
-    if(!enteredUser || !enteredPass) {
-        alert("يرجى تعبئة كافة الحقول أولاً!");
+    if (!userVal || !passVal) {
+        alert("الرجاء تعبئة كافة الحقول المطلوبة!");
+        return;
+    }
+
+    // 1. فحص حساب الادمن الرئيسي المباشر
+    if (userVal === "admin" && passVal === "admin123") {
+        completeLoginSequence(true, "الأدمن الرئيسي");
+        return;
+    }
+
+    // 2. فحص الحسابات من مجموعة المستخدمين المضافة في Firestore
+    try {
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("username", "==", userVal.toLowerCase()), where("password", "==", passVal));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const loggedInUser = querySnapshot.docs[0].data();
+            completeLoginSequence(false, loggedInUser.name);
+        } else {
+            alert("خطأ: اسم المستخدم أو كلمة المرور المدخلة غير صحيحة!");
+        }
+    } catch (error) {
+        console.error("Login verification failed: ", error);
+        alert("حدث خطأ تقني أثناء محاولة الاستعلام، يرجى المحاولة لاحقاً.");
+    }
+});
+
+function completeLoginSequence(isMainAdmin, nameToDisplay) {
+    adminPanel.style.display = 'block';
+    adminBtn.innerText = `خروج (${nameToDisplay})`;
+    loginModal.style.display = 'none';
+    isAdminLoggedIn = true;
+
+    // إخفاء أو إظهار أدوات الإدارة الحساسة حسب الرتبة
+    if (isMainAdmin) {
+        mainAdminOnlySection.style.display = "block";
+    } else {
+        mainAdminOnlySection.style.display = "none";
+    }
+
+    alert(`مرحباً بك يا ${nameToDisplay}، تم الدخول بنجاح للموقع.`);
+    loadNews();
+    loadTickerNews();
+}
+
+// معالجة إضافة عضو جديد وحفظه سحابياً
+addUserForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = newMemberName.value.trim();
+    const username = newMemberUsername.value.trim().toLowerCase();
+    const password = newMemberPassword.value.trim();
+
+    if (username === "admin") {
+        alert("لا يمكن حجز اسم المستخدم 'admin' لأنه مخصص للأدمن الرئيسي!");
         return;
     }
 
     try {
-        const q = query(collection(db, "users"), where("username", "==", enteredUser), where("password", "==", enteredPass));
-        const querySnapshot = await getDocs(q);
+        // فحص مسبق لعدم تكرار اليوزر نيم
+        const qCheck = query(collection(db, "users"), where("username", "==", username));
+        const checkSnap = await getDocs(qCheck);
 
-        if (!querySnapshot.empty) {
-            const userDoc = querySnapshot.docs[0];
-            const userData = userDoc.data();
-            
-            currentUserRole = userData.role; 
-            currentUserDocId = userDoc.id;
-            isAdminLoggedIn = true;
-
-            adminPanel.style.display = 'block';
-            adminBtn.innerText = "خروج الأدمن";
-            loginModal.style.display = 'none';
-            alert(`تم تسجيل الدخول بنجاح! الصلاحية: ${currentUserRole === 'super_admin' ? 'المدير العام' : 'عضو كاتب'}`);
-
-            if (currentUserRole === 'super_admin') {
-                superAdminSection.style.display = 'block';
-                loadMembersList(); 
-            } else {
-                superAdminSection.style.display = 'none';
-            }
-
-            loadNews();
-            loadTickerNews();
-        } else {
-            // كود الحماية الاحتياطي لأول تشغيل للموقع في حال كان الـ Collection فارغاً
-            if (enteredUser === "admin" && enteredPass === "admin123") {
-                await addDoc(collection(db, "users"), {
-                    username: "admin",
-                    password: "admin123",
-                    role: "super_admin"
-                });
-                alert("تم إنشاء حساب الأدمن الرئيسي السحابي الأساسي، أعد الضغط على زر دخول الآن!");
-            } else {
-                alert("اسم المستخدم أو كلمة المرور غير صحيحة!");
-            }
+        if (!checkSnap.empty) {
+            alert("اسم المستخدم هذا مأخوذ مسبقاً! يرجى اختيار اسم آخر.");
+            return;
         }
+
+        // الحفظ في كولكشن users
+        await addDoc(collection(db, "users"), {
+            name: name,
+            username: username,
+            password: password,
+            timestamp: new Date()
+        });
+
+        alert(`تمت إضافة العضو بنجاح وتفعيل حسابه: ${name}`);
+        addUserForm.reset();
+
     } catch (error) {
-        console.error("Login Error: ", error);
-        alert("حدث خطأ ما أثناء فحص الحساب.");
+        console.error("Error adding member: ", error);
+        alert("فشل في إضافة العضو الجديد.");
     }
 });
 
@@ -223,6 +253,13 @@ async function loadTickerNews() {
 }
 
 function addTickerActionsListeners() {
+    document.querySelectorAll('.btn-ticker-delete').forEach(btn => {
+        btn.replaceWith(btn.cloneNode(true)); 
+    });
+    document.querySelectorAll('.btn-ticker-edit').forEach(btn => {
+        btn.replaceWith(btn.cloneNode(true));
+    });
+
     document.querySelectorAll('.btn-ticker-delete').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             const id = e.target.getAttribute('data-id');
@@ -323,7 +360,7 @@ async function loadNews() {
                 if (ytEmbed) {
                     mediaHtml += `<div style="margin-bottom:15px;"><iframe width="100%" height="315" src="${ytEmbed}" frameborder="0" allowfullscreen style="border-radius:6px;"></iframe></div>`;
                 } else {
-                    mediaHtml += `<video src="${news.videoUrl}" controls style="width:100%; max-height:350px; border-radius:6px; margin-bottom:15px vanquish;"></video>`;
+                    mediaHtml += `<video src="${news.videoUrl}" controls style="width:100%; max-height:350px; border-radius:6px; margin-bottom:15px;"></video>`;
                 }
             }
 
@@ -406,6 +443,13 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 
 function addActionsEventListeners() {
     document.querySelectorAll('.btn-delete').forEach(button => {
+        button.replaceWith(button.cloneNode(true));
+    });
+    document.querySelectorAll('.btn-edit').forEach(button => {
+        button.replaceWith(button.cloneNode(true));
+    });
+
+    document.querySelectorAll('.btn-delete').forEach(button => {
         button.addEventListener('click', async (e) => {
             const id = e.target.getAttribute('data-id');
             if (confirm("هل أنت متأكد من حذف هذا البوست نهائياً؟")) {
@@ -457,31 +501,4 @@ newsForm.addEventListener('submit', async (e) => {
     const category = document.getElementById('newsCategory').value;
     const title = document.getElementById('newsTitle').value;
     const content = document.getElementById('newsContent').value;
-    const selectedFile = newsFile.files[0];
-    
-    let data = { 
-        language: lang, 
-        category: category, 
-        title: title, 
-        content: content,
-        imgUrl: newsImgUrl.value.trim(),
-        videoUrl: newsVideoUrl.value.trim(),
-        fileUrlField: newsFileUrlField.value.trim()
-    };
-
-    try {
-        if (selectedFile) {
-            uploadProgressContainer.style.display = 'block';
-            const storageRef = ref(storage, 'uploads/' + Date.now() + '_' + selectedFile.name);
-            const uploadTask = uploadBytesResumable(storageRef, selectedFile);
-
-            await new Promise((resolve, reject) => {
-                uploadTask.on('state_changed', 
-                    (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        uploadProgressBar.style.width = progress + '%';
-                    }, 
-                    (error) => reject(error), 
-                    async () => {
-                        data.fileUrl = await getDownloadURL(uploadTask.snapshot.ref);
-    
+    const selectedFile = 

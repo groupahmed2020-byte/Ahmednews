@@ -32,7 +32,7 @@
 
     <div id="loginModal" class="modal" style="display: none;">
         <div class="modal-content">
-            <h3>تسجيل دخول الأدمن</h3>
+            <h3>تسجيل دخول الأدمن والأعضاء</h3>
             <input type="text" id="modalUsername" placeholder="أدخل اسم المستخدم" required>
             <input type="password" id="modalPassword" placeholder="أدخل كلمة المرور" required>
             <div class="modal-buttons">
@@ -129,40 +129,26 @@
                 </table>
             </div>
 
-            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+            <!-- قسم إدارة وإضافة الأعضاء الجدد المخصص للادمن الرئيسي -->
+            <div id="mainAdminOnlySection">
+                <hr style="margin: 20px 0; border: 0; border-top: 2px dashed #ccc;">
 
-            <h3 style="color: #1a237e; margin-bottom: 15px;">تعديل بيانات حسابك الحالي</h3>
-            <form id="adminUpdateForm" style="margin-bottom: 20px;">
-                <input type="text" id="newAdminUsername" placeholder="اسم المستخدم الجديد">
-                <input type="password" id="newAdminPassword" placeholder="كلمة المرور الجديدة">
-                <button type="submit" style="background-color: #4caf50; color: white;">حفظ البيانات الجديدة سحابياً</button>
-            </form>
-
-            <!-- قسم خاص بالآدمن الرئيسي فقط لإدارة وأرشفة حسابات الأعضاء الجدد -->
-            <div id="superAdminSection" style="display: none;">
-                <hr style="margin: 20px 0; border: 0; border-top: 2px dashed #1a237e;">
-                <h3 style="color: #2e7d32; margin-bottom: 15px;">إضافة عضو جديد (كاتب أخبار)</h3>
-                <form id="addMemberForm" style="margin-bottom: 20px;">
-                    <input type="text" id="memberUsername" placeholder="اسم مستخدم العضو الجديد" required>
-                    <input type="password" id="memberPassword" placeholder="كلمة مرور العضو الجديد" required>
-                    <button type="submit" style="background-color: #2e7d32; color: white;">إضافة العضو للمنظومة</button>
+                <h3 style="color: #2e7d32; margin-bottom: 15px;">إضافة عضو جديد للموقع</h3>
+                <form id="addUserForm" style="margin-bottom: 20px;">
+                    <input type="text" id="newMemberName" placeholder="الاسم الكامل للعضو" required style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                    <input type="text" id="newMemberUsername" placeholder="اسم المستخدم الدخول (Username)" required style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                    <input type="password" id="newMemberPassword" placeholder="كلمة المرور الحساب" required style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                    <button type="submit" style="background-color: #2e7d32; color: white; border: none; padding: 10px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 4px;">تفعيل الحساب سحابياً فوراً</button>
                 </form>
 
-                <h4 style="color: #333; margin-bottom: 10px;">الأعضاء الحاليين بالنظام:</h4>
-                <div style="overflow-x: auto; margin-bottom: 20px;">
-                    <table style="width: 100%; border-collapse: collapse; text-align: right; font-size: 14px;">
-                        <thead>
-                            <tr style="background-color: #e8f5e9; border-bottom: 2px solid #ccc;">
-                                <th style="padding: 8px;">اسم المستخدم</th>
-                                <th style="padding: 8px;">الصلاحية</th>
-                                <th style="padding: 8px; text-align: center;">التحكم</th>
-                            </tr>
-                        </thead>
-                        <tbody id="membersListTable">
-                            <!-- يتم البناء برمجياً سحابياً -->
-                        </tbody>
-                    </table>
-                </div>
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+
+                <h3 style="color: #1a237e; margin-bottom: 15px;">تعديل بيانات حساب الأدمن الرئيسي</h3>
+                <form id="adminUpdateForm">
+                    <input type="text" id="newAdminUsername" placeholder="اسم المستخدم الجديد">
+                    <input type="password" id="newAdminPassword" placeholder="كلمة المرور الجديدة">
+                    <button type="submit" style="background-color: #4caf50; color: white;">حفظ البيانات الجديدة سحابياً</button>
+                </form>
             </div>
         </section>
 
