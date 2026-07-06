@@ -3,164 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقع أحمد الإخباري - Ahmad News</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>موقع أحمد الإخباري | Ahmad News</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- الهيدر الرئيسي -->
     <header class="main-header">
-        <div class="header-container">
-            <div class="logo">موقع أحمد الإخباري <span class="en-logo">Ahmad News</span></div>
-            <nav class="main-nav" id="mainNav">
-                <a href="#" class="nav-link active" onclick="switchMainSection('home')">الرئيسية</a>
-                <a href="#" class="nav-link" onclick="switchMainSection('english')">English News</a>
-                <a href="#" class="nav-link" onclick="switchMainSection('login')">لوحة التحكم</a>
+        <div class="container header-flex">
+            <div class="logo">موقع أحمد الإخباري</div>
+            <nav class="nav-menu">
+                <a href="index.html" class="active">الرئيسية</a>
+                <a href="english.html">English Section</a>
+                <a href="admin-login.html">لوحة التحكم</a>
             </nav>
             <div class="header-actions">
-                <button id="themeToggle" class="theme-btn" aria-label="Toggle Dark Mode">🌙</button>
+                <input type="text" id="search-input" placeholder="بحث عن خبر...">
+                <button id="theme-toggle" class="btn-toggle">🌙 الوضع الداكن</button>
             </div>
         </div>
     </header>
 
-    <div class="ticker-wrap">
+    <!-- شريط الأخبار العاجلة -->
+    <div class="ticker-wrapper">
         <div class="ticker-title">عاجل</div>
-        <div class="ticker">
-            <div class="ticker-item">إطلاق النسخة التجريبية الأولى من موقع أحمد الإخباري بتصميم عصري.</div>
-            <div class="ticker-item">توفير أقسام متنوعة وفلاتر ذكية للتنقل السريع بين الأخبار المحلية والعالمية.</div>
+        <div class="ticker-content">
+            <div class="ticker-text" id="urgent-ticker">
+                جاري تحميل العناوين العاجلة...
+            </div>
         </div>
     </div>
 
-    <main class="content-wrapper">
-
-        <section id="homeSection" class="main-section active-section">
+    <!-- المحتوى الرئيسي للموقع -->
+    <main class="container main-layout">
+        
+        <!-- قسم الأخبار والفلاتر -->
+        <section class="content-area">
             <div class="category-filters">
-                <button class="filter-btn active" onclick="filterArticles('all')">كل الأخبار</button>
-                <button class="filter-btn" onclick="filterArticles('politics')">سياسة</button>
-                <button class="filter-btn" onclick="filterArticles('economy')">اقتصاد</button>
-                <button class="filter-btn" onclick="filterArticles('tech')">تكنولوجيا</button>
-                <button class="filter-btn" onclick="filterArticles('local')">محليات</button>
+                <button class="filter-btn active" data-category="all">كل الأقسام</button>
+                <button class="filter-btn" data-category="politics">سياسة</button>
+                <button class="filter-btn" data-category="economy">اقتصاد</button>
+                <button class="filter-btn" data-category="tech">تكنولوجيا</button>
+                <button class="filter-btn" data-category="local">محليات</button>
+                <button class="filter-btn" data-category="research">الدراسات والأبحاث</button>
+                <button class="filter-btn" data-category="religious">دينية</button>
             </div>
 
-            <div class="news-grid">
-                <div class="featured-news" id="featuredContainer">
-                    </div>
-
-                <aside class="sidebar">
-                    <div class="widget">
-                        <h3>🌤️ حالة الطقس (غزة)</h3>
-                        <p>صافي جزئياً | 28°م</p>
-                    </div>
-                    <div class="widget">
-                        <h3>🕌 مواقيت الصلاة</h3>
-                        <ul class="prayer-times">
-                            <li>الفجر: 04:15</li>
-                            <li>الظهر: 12:45</li>
-                            <li>العصر: 16:15</li>
-                            <li>المغرب: 19:50</li>
-                            <li>العشاء: 21:15</li>
-                        </ul>
-                    </div>
-                </aside>
-            </div>
-
-            <div class="articles-list" id="articlesContainer">
-                </div>
-        </section>
-
-        <section id="englishSection" class="main-section" dir="ltr">
-            <div class="section-title-en">
-                <h2>Latest English News</h2>
-                <p>Stay updated with our latest international coverage</p>
-            </div>
-            <div class="english-news-grid" id="englishArticlesContainer">
-                </div>
-        </section>
-
-        <section id="loginSection" class="main-section">
-            <div class="login-card">
-                <h2>تسجيل دخول المسؤول</h2>
-                <p class="login-subtitle">الوصول السريع والآمن إلى لوحة التحكم</p>
-                <form id="loginForm" onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label for="username">اسم المستخدم</label>
-                        <input type="text" id="username" required placeholder="أدخل اسم المستخدم">
-                    </div>
-                    <div class="form-group">
-                        <label for="password">كلمة المرور</label>
-                        <input type="password" id="password" required placeholder="أدخل كلمة المرور">
-                    </div>
-                    <button type="submit" class="btn-primary">دخول مباشر</button>
-                </form>
-                <p id="loginError" class="error-msg"></p>
+            <!-- شبكة الأخبار الديناميكية -->
+            <div class="news-grid" id="news-container">
+                <!-- يتم التعبئة تلقائياً بواسطة الجافاسكربت -->
             </div>
         </section>
 
-        <section id="adminSection" class="main-section">
-            <div class="admin-dashboard">
-                <div class="admin-header">
-                    <h2>لوحة التحكم للمسؤول</h2>
-                    <button class="btn-danger" onclick="handleLogout()">تسجيل الخروج</button>
-                </div>
-                
-                <div class="admin-grid">
-                    <div class="admin-card">
-                        <h3>➕ إضافة خبر جديد</h3>
-                        <form id="addArticleForm" onsubmit="createNewArticle(event)">
-                            <div class="form-group">
-                                <label>عنوان الخبر</label>
-                                <input type="text" id="postTitle" required>
-                            </div>
-                            <div class="form-group">
-                                <label>القسم</label>
-                                <select id="postCategory">
-                                    <option value="politics">سياسة</option>
-                                    <option value="economy">اقتصاد</option>
-                                    <option value="tech">تكنولوجيا</option>
-                                    <option value="local">محليات</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>حالة الخبر</label>
-                                <select id="postStatus">
-                                    <option value="published">منشور</option>
-                                    <option value="draft">مسودة</option>
-                                    <option value="urgent">عاجل</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>المحتوى</label>
-                                <textarea id="postContent" rows="5" required></textarea>
-                            </div>
-                            <button type="submit" class="btn-success">نشر الخبر فوراً</button>
-                        </form>
-                    </div>
-
-                    <div class="admin-card">
-                        <h3>📝 إدارة الأخبار الحالية</h3>
-                        <div class="table-wrapper">
-                            <table class="admin-table">
-                               <thead>
-                                   <tr>
-                                       <th>العنوان</th>
-                                       <th>القسم</th>
-                                       <th>الحالة</th>
-                                       <th>الإجراءات</th>
-                                   </tr>
-                               </thead>
-                               <tbody id="adminArticlesTable">
-                                   </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+        <!-- الودجت الجانبية -->
+        <aside class="sidebar">
+            <div class="widget">
+                <h3>🌤️ حالة الطقس ومواقيت الصلاة</h3>
+                <p>غزة، فلسطين: 28°C - صافي</p>
+                <hr style="margin: 10px 0; border: 0; border-top: 1px solid var(--border-color);">
+                <p>الظهر: 12:45 م | العصر: 4:15 م | المغرب: 7:40 م</p>
             </div>
-        </section>
+
+            <div class="widget">
+                <h3>🔥 الأكثر قراءة</h3>
+                <ul class="popular-posts" style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 10px;"><a href="#" style="color: var(--accent-color); text-decoration: none;">إطلاق التحديث الجديد لمنصة أحمد الإخبارية</a></li>
+                    <li><a href="#" style="color: var(--accent-color); text-decoration: none;">دراسة برمجية جديدة حول كفاءة تطبيقات الويب</a></li>
+                </ul>
+            </div>
+        </aside>
 
     </main>
 
-    <script src="script.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>

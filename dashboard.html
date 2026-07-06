@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المسؤول | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="container header-flex">
+            <div class="logo">لوحة التحكم الإدارية</div>
+            <nav class="nav-menu">
+                <a href="index.html">زيارة الموقع</a>
+                <a href="#add-news" class="active">إضافة خبر</a>
+                <a href="#settings">إعدادات الحساب</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container dashboard-layout">
+        <!-- نموذج إضافة المقالات والأخبار -->
+        <section class="dashboard-box" id="add-news" style="max-width: 100%;">
+            <h2>✍️ نشر خبر أو مقال جديد</h2>
+            <form id="news-upload-form" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label>عنوان الخبر</label>
+                    <input type="text" placeholder="اكتب عنواناً جذاباً..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>محتوى المقال بالكامل</label>
+                    <textarea rows="6" placeholder="اكتب تفاصيل الخبر هنا..." required></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label>قسم الخبر</label>
+                        <select>
+                            <option value="politics">سياسة</option>
+                            <option value="economy">اقتصاد</option>
+                            <option value="tech">تكنولوجيا</option>
+                            <option value="local">محليات</option>
+                            <option value="research">الدراسات والأبحاث</option>
+                            <option value="religious">دينية</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>حالة الخبر</label>
+                        <select id="news-status">
+                            <option value="published">منشور فوراً</option>
+                            <option value="draft">مسودة</option>
+                            <option value="urgent">عاجل (يظهر بالشريط العلوي)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- خانات رفع الملفات المتكاملة -->
+                <div class="upload-section">
+                    <div class="upload-box">
+                        <label>🖼️ رفع الصورة البارزة من الجهاز</label>
+                        <input type="file" accept="image/*" style="margin-top: 5px;">
+                    </div>
+                    <div class="upload-box">
+                        <label>🎥 رفع ملف فيديو</label>
+                        <input type="file" accept="video/*" style="margin-top: 5px;">
+                    </div>
+                    <div class="upload-box">
+                        <label>📄 رفع مستندات (PDF, Word, Excel...)</label>
+                        <input type="file" accept=".pdf, .doc, .docx, .xls, .xlsx" style="margin-top: 5px;">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">نشر وتثبيت المقال</button>
+            </form>
+        </section>
+
+        <!-- قسم تعديل بيانات المسؤول -->
+        <section class="dashboard-box" id="settings" style="max-width: 100%;">
+            <h2>⚙️ تعديل بيانات الحساب الشخصي</h2>
+            <form id="account-settings-form" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label>اسم المسؤول الجديد</label>
+                    <input type="text" placeholder="تعديل اسم المستخدم">
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور الجديدة</label>
+                    <input type="password" placeholder="أدخل كلمة مرور قوية جديدة">
+                </div>
+                <button type="submit" class="btn-submit" style="background-color: #6c757d;">تحديث بيانات الدخول</button>
+            </form>
+        </section>
+    </main>
+
+</body>
+</html>

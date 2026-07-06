@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ahmad News | English Section</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="container header-flex">
+            <div class="logo">Ahmad News</div>
+            <nav class="nav-menu">
+                <a href="index.html">الصفحة العربية</a>
+                <a href="english.html" class="active">English</a>
+                <a href="admin-login.html">Dashboard</a>
+            </nav>
+            <div class="header-actions">
+                <button id="theme-toggle" class="btn-toggle">🌙 Dark Mode</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section style="background: var(--card-bg); padding: 40px; border-radius: 8px; margin-top: 20px; border: 1px solid var(--border-color); text-align: center;">
+            <h1 style="color: var(--accent-color); margin-bottom: 10px;">Welcome to Ahmad News English Section</h1>
+            <p>Latest international news and updates, curated precisely.</p>
+        </section>
+
+        <div class="news-grid" id="english-news-container">
+            <div class="news-card">
+                <div class="news-card-content">
+                    <span class="category-badge">Tech</span>
+                    <h3 style="margin: 10px 0; font-size: 1.2rem;">Web Development Trends in 2026</h3>
+                    <p style="font-size: 0.95rem; opacity: 0.85;">Discover how native JavaScript components and modern modular architecture are shaping the future of fast news portals...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="main.js"></script>
+</body>
+</html>
