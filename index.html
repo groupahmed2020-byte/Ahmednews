@@ -3,192 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقع أحمد الإخباري</title>
+    <title>موقع أحمد الإخباري - Ahmad News</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <div class="logo">أحمد الإخباري</div>
-        <nav>
-            <ul>
-                <li><a href="#" id="nav-home">الرئيسية</a></li>
-                <li><a href="#" id="nav-news">أخبار عاجلة</a></li>
-                <li class="nav-controls">
-                    <button id="btn-lang-ar" class="lang-switch-btn active">العربية</button>
-                    <button id="btn-lang-en" class="lang-switch-btn">English</button>
-                    <button id="adminBtn" class="btn-login">دخول الأدمن</button>
-                </li>
-            </ul>
-        </nav>
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo">موقع أحمد الإخباري <span class="en-logo">Ahmad News</span></div>
+            <nav class="main-nav" id="mainNav">
+                <a href="#" class="nav-link active" onclick="switchMainSection('home')">الرئيسية</a>
+                <a href="#" class="nav-link" onclick="switchMainSection('english')">English News</a>
+                <a href="#" class="nav-link" onclick="switchMainSection('login')">لوحة التحكم</a>
+            </nav>
+            <div class="header-actions">
+                <button id="themeToggle" class="theme-btn" aria-label="Toggle Dark Mode">🌙</button>
+            </div>
+        </div>
     </header>
 
-    <div class="ticker-wrapper" id="tickerWrapper">
-        <span class="ticker-title" id="tickerTitle">عاجل</span>
-        <div class="ticker-container">
-            <div class="ticker-text" id="tickerText">جاري تحميل الأخبار العاجلة سحابياً...</div>
+    <div class="ticker-wrap">
+        <div class="ticker-title">عاجل</div>
+        <div class="ticker">
+            <div class="ticker-item">إطلاق النسخة التجريبية الأولى من موقع أحمد الإخباري بتصميم عصري.</div>
+            <div class="ticker-item">توفير أقسام متنوعة وفلاتر ذكية للتنقل السريع بين الأخبار المحلية والعالمية.</div>
         </div>
     </div>
 
-    <div id="loginModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h3>تسجيل دخول الأدمن</h3>
-            <input type="text" id="modalUsername" placeholder="أدخل اسم المستخدم" required>
-            <input type="password" id="modalPassword" placeholder="أدخل كلمة المرور" required>
-            <div class="modal-buttons">
-                <button id="submitLoginBtn" class="btn-confirm">دخول</button>
-                <button id="closeLoginBtn" class="btn-cancel">إلغاء</button>
-            </div>
-        </div>
-    </div>
+    <main class="content-wrapper">
 
-    <main>
-        
-        <section class="admin-panel" id="adminPanel" style="display: none;">
-            <h3 id="form-title">إضافة خبر جديد</h3>
-            <form id="newsForm">
-                <input type="hidden" id="editDocId">
-                
-                <div class="form-group">
-                    <label for="newsLanguage">لغة الخبر:</label>
-                    <select id="newsLanguage">
-                        <option value="ar">العربية</option>
-                        <option value="en">English</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="newsCategory">قسم الخبر:</label>
-                    <select id="newsCategory">
-                        <option value="politics">سياسية</option>
-                        <option value="economy">اقتصادية</option>
-                        <option value="tech">تكنولوجيا</option>
-                        <option value="studies">دراسات وأبحاث</option>
-                    </select>
-                </div>
-
-                <input type="text" id="newsTitle" placeholder="عنوان الخبر" required>
-                <textarea id="newsContent" placeholder="تفاصيل الخبر النصية..." rows="4" required></textarea>
-                
-                <div class="form-group">
-                    <label for="newsImgUrl">أو رابط صورة مباشر (URL):</label>
-                    <input type="url" id="newsImgUrl" placeholder="https://example.com/image.jpg">
-                </div>
-
-                <div class="form-group">
-                    <label for="newsVideoUrl">أو رابط فيديو مباشر / يوتيوب (URL):</label>
-                    <input type="url" id="newsVideoUrl" placeholder="https://example.com/video.mp4 أو رابط يوتيوب">
-                </div>
-
-                <div class="form-group">
-                    <label for="newsFileUrlField">أو رابط مستند / ملف مباشر (URL):</label>
-                    <input type="url" id="newsFileUrlField" placeholder="https://example.com/document.pdf">
-                </div>
-
-                <div class="file-upload-group">
-                    <label for="newsFile">إرفاق ملف / مستند / صورة (من الجهاز):</label>
-                    <input type="file" id="newsFile">
-                </div>
-
-                <div id="uploadProgressContainer" style="display: none; background-color: #ddd; border-radius: 4px; margin-bottom: 12px; height: 10px; overflow: hidden;">
-                    <div id="uploadProgressBar" style="background-color: #ff9800; width: 0%; height: 100%; transition: width 0.2s;"></div>
-                </div>
-
-                <button type="submit" id="btn-publish">نشر الخبر</button>
-                <button type="button" id="btn-cancel-edit" style="background-color: #777; margin-top: 5px; display: none;">إلغاء التعديل</button>
-            </form>
-
-            <hr style="margin: 20px 0; border: 0; border-top: 2px dashed #ccc;">
-
-            <h3 id="ticker-form-title" style="color: #d32f2f;">إدارة شريط الأخبار العاجلة</h3>
-            <form id="tickerForm" style="margin-bottom: 20px;">
-                <input type="hidden" id="editTickerId">
-                <div class="form-group">
-                    <label for="tickerLanguage">لغة الخبر العاجل:</label>
-                    <select id="tickerLanguage">
-                        <option value="ar">العربية</option>
-                        <option value="en">English</option>
-                    </select>
-                </div>
-                <input type="text" id="tickerInputText" placeholder="اكتب نص الخبر العاجل هنا..." required style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                <button type="submit" id="btn-publish-ticker" style="background-color: #d32f2f; color: white; border: none; padding: 10px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 4px;">حفظ ونشر في شريط العاجل</button>
-                <button type="button" id="btn-cancel-ticker-edit" style="background-color: #777; color: white; margin-top: 5px; display: none; width: 100%; padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">إلغاء تعديل العاجل</button>
-            </form>
-
-            <div style="overflow-x: auto; margin-bottom: 20px;">
-                <table style="width: 100%; border-collapse: collapse; text-align: right; font-size: 14px;" id="tickerAdminTable">
-                    <thead>
-                        <tr style="background-color: #f2f2f2; border-bottom: 2px solid #ccc;">
-                            <th style="padding: 8px;">اللغة</th>
-                            <th style="padding: 8px;">نص الخبر العاجل</th>
-                            <th style="padding: 8px; text-align: center;">التحكم</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tickerAdminList">
-                    </tbody>
-                </table>
+        <section id="homeSection" class="main-section active-section">
+            <div class="category-filters">
+                <button class="filter-btn active" onclick="filterArticles('all')">كل الأخبار</button>
+                <button class="filter-btn" onclick="filterArticles('politics')">سياسة</button>
+                <button class="filter-btn" onclick="filterArticles('economy')">اقتصاد</button>
+                <button class="filter-btn" onclick="filterArticles('tech')">تكنولوجيا</button>
+                <button class="filter-btn" onclick="filterArticles('local')">محليات</button>
             </div>
 
-            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ccc;">
+            <div class="news-grid">
+                <div class="featured-news" id="featuredContainer">
+                    </div>
 
-            <h3 style="color: #1a237e; margin-bottom: 15px;">تعديل بيانات حسابك الحالي</h3>
-            <form id="adminUpdateForm" style="margin-bottom: 20px;">
-                <input type="text" id="newAdminUsername" placeholder="اسم المستخدم الجديد">
-                <input type="password" id="newAdminPassword" placeholder="كلمة المرور الجديدة">
-                <button type="submit" style="background-color: #4caf50; color: white;">حفظ البيانات الجديدة سحابياً</button>
-            </form>
+                <aside class="sidebar">
+                    <div class="widget">
+                        <h3>🌤️ حالة الطقس (غزة)</h3>
+                        <p>صافي جزئياً | 28°م</p>
+                    </div>
+                    <div class="widget">
+                        <h3>🕌 مواقيت الصلاة</h3>
+                        <ul class="prayer-times">
+                            <li>الفجر: 04:15</li>
+                            <li>الظهر: 12:45</li>
+                            <li>العصر: 16:15</li>
+                            <li>المغرب: 19:50</li>
+                            <li>العشاء: 21:15</li>
+                        </ul>
+                    </div>
+                </aside>
+            </div>
 
-            <!-- قسم خاص بالآدمن الرئيسي فقط لإدارة وأرشفة حسابات الأعضاء الجدد -->
-            <div id="superAdminSection" style="display: none;">
-                <hr style="margin: 20px 0; border: 0; border-top: 2px dashed #1a237e;">
-                <h3 style="color: #2e7d32; margin-bottom: 15px;">إضافة عضو جديد (كاتب أخبار)</h3>
-                <form id="addMemberForm" style="margin-bottom: 20px;">
-                    <input type="text" id="memberUsername" placeholder="اسم مستخدم العضو الجديد" required>
-                    <input type="password" id="memberPassword" placeholder="كلمة مرور العضو الجديد" required>
-                    <button type="submit" style="background-color: #2e7d32; color: white;">إضافة العضو للمنظومة</button>
+            <div class="articles-list" id="articlesContainer">
+                </div>
+        </section>
+
+        <section id="englishSection" class="main-section" dir="ltr">
+            <div class="section-title-en">
+                <h2>Latest English News</h2>
+                <p>Stay updated with our latest international coverage</p>
+            </div>
+            <div class="english-news-grid" id="englishArticlesContainer">
+                </div>
+        </section>
+
+        <section id="loginSection" class="main-section">
+            <div class="login-card">
+                <h2>تسجيل دخول المسؤول</h2>
+                <p class="login-subtitle">الوصول السريع والآمن إلى لوحة التحكم</p>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="username">اسم المستخدم</label>
+                        <input type="text" id="username" required placeholder="أدخل اسم المستخدم">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">كلمة المرور</label>
+                        <input type="password" id="password" required placeholder="أدخل كلمة المرور">
+                    </div>
+                    <button type="submit" class="btn-primary">دخول مباشر</button>
                 </form>
+                <p id="loginError" class="error-msg"></p>
+            </div>
+        </section>
 
-                <h4 style="color: #333; margin-bottom: 10px;">الأعضاء الحاليين بالنظام:</h4>
-                <div style="overflow-x: auto; margin-bottom: 20px;">
-                    <table style="width: 100%; border-collapse: collapse; text-align: right; font-size: 14px;">
-                        <thead>
-                            <tr style="background-color: #e8f5e9; border-bottom: 2px solid #ccc;">
-                                <th style="padding: 8px;">اسم المستخدم</th>
-                                <th style="padding: 8px;">الصلاحية</th>
-                                <th style="padding: 8px; text-align: center;">التحكم</th>
-                            </tr>
-                        </thead>
-                        <tbody id="membersListTable">
-                            <!-- يتم البناء برمجياً سحابياً -->
-                        </tbody>
-                    </table>
+        <section id="adminSection" class="main-section">
+            <div class="admin-dashboard">
+                <div class="admin-header">
+                    <h2>لوحة التحكم للمسؤول</h2>
+                    <button class="btn-danger" onclick="handleLogout()">تسجيل الخروج</button>
+                </div>
+                
+                <div class="admin-grid">
+                    <div class="admin-card">
+                        <h3>➕ إضافة خبر جديد</h3>
+                        <form id="addArticleForm" onsubmit="createNewArticle(event)">
+                            <div class="form-group">
+                                <label>عنوان الخبر</label>
+                                <input type="text" id="postTitle" required>
+                            </div>
+                            <div class="form-group">
+                                <label>القسم</label>
+                                <select id="postCategory">
+                                    <option value="politics">سياسة</option>
+                                    <option value="economy">اقتصاد</option>
+                                    <option value="tech">تكنولوجيا</option>
+                                    <option value="local">محليات</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>حالة الخبر</label>
+                                <select id="postStatus">
+                                    <option value="published">منشور</option>
+                                    <option value="draft">مسودة</option>
+                                    <option value="urgent">عاجل</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>المحتوى</label>
+                                <textarea id="postContent" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="btn-success">نشر الخبر فوراً</button>
+                        </form>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3>📝 إدارة الأخبار الحالية</h3>
+                        <div class="table-wrapper">
+                            <table class="admin-table">
+                               <thead>
+                                   <tr>
+                                       <th>العنوان</th>
+                                       <th>القسم</th>
+                                       <th>الحالة</th>
+                                       <th>الإجراءات</th>
+                                   </tr>
+                               </thead>
+                               <tbody id="adminArticlesTable">
+                                   </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <div class="categories-filter">
-            <button class="filter-btn active" data-category="all">كل الأخبار</button>
-            <button class="filter-btn" data-category="politics">سياسية</button>
-            <button class="filter-btn" data-category="economy">اقتصادية</button>
-            <button class="filter-btn" data-category="tech">تكنولوجيا</button>
-            <button class="filter-btn" data-category="studies">دراسات وأبحاث</button>
-        </div>
-
-        <h2 id="section-title">آخر الأخبار</h2>
-        
-        <section class="news-container id-container-ar" id="newsContainerAr">
-            <div class="loadingText" style="text-align: center; color: #888;">جاري تحميل الأخبار العربية...</div>
-        </section>
-
-        <section class="news-container id-container-en" id="newsContainerEn" style="display: none;" dir="ltr">
-            <div class="loadingText" style="text-align: center; color: #888;">Loading English News...</div>
-        </section>
     </main>
 
-    <footer>
-        <p>&copy; 2026 موقع أحمد الإخباري. جميع الحقوق محفوظة.</p>
-    </footer>
-
-    <script src="script.js" type="module"></script>
+    <script src="script.js"></script>
 </body>
 </html>
