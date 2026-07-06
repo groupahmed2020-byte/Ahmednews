@@ -84,16 +84,19 @@ nav ul li a {
     background-color: #e68a00;
 }
 
-/* شريط الأخبار العاجلة */
+/* ==========================================================================
+   تنسيق صندوق الأخبار العاجلة الثابت (تم التعديل لإلغاء نظام شريط الحركة السريع)
+   ========================================================================== */
 .ticker-wrapper {
     display: flex;
     align-items: center;
     background-color: #d32f2f;
     color: white;
-    height: 40px;
+    min-height: 40px; /* ليتمدد الصندوق تلقائياً لأسفل إن كان النص طويلاً */
     overflow: hidden;
     position: relative;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 5px 0;
 }
 
 .ticker-title {
@@ -113,74 +116,31 @@ nav ul li a {
 }
 
 .ticker-container {
-    overflow: hidden;
     width: 100%;
     display: flex;
     align-items: center;
+    padding: 0 15px; /* مسافة داخلية مريحة حول النص */
 }
 
-.ticker-wrapper[dir="rtl"] .ticker-text {
-    display: inline-block;
-    white-space: nowrap;
-    padding-right: 50px;
-    padding-left: 50px;
+.ticker-text {
+    display: block;
+    white-space: normal; /* السماح للنص بالنزول لسطر جديد تلقائياً عند الحاجة */
     font-weight: 500;
     font-size: 14px;
-    animation: ticker-loop-ar 30s linear infinite;
+    line-height: 1.4;
+    animation: none !important; /* إلغاء الحركة تماماً */
 }
 
+/* إلغاء الأنيميشن في حالة الاتجاه الأجنبي أيضاً */
 .ticker-wrapper[dir="ltr"] .ticker-text {
-    display: inline-block;
-    white-space: nowrap;
-    padding-right: 50px;
-    padding-left: 50px;
-    font-weight: 500;
-    font-size: 14px;
-    animation: ticker-loop-en 30s linear infinite;
+    animation: none !important;
 }
 
-.ticker-text:hover {
-    animation-play-state: paused;
-}
+/* ========================================================================== */
 
-@keyframes ticker-loop-ar {
-    0% { transform: translate3d(-100%, 0, 0); }
-    100% { transform: translate3d(100%, 0, 0); }
-}
-
-@keyframes ticker-loop-en {
-    0% { transform: translate3d(100%, 0, 0); }
-    100% { transform: translate3d(-100%, 0, 0); }
-}
-
-/* تنسيق الجداول والتحكم بلوحة الأدمن */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    background-color: #fff;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-table th {
-    background-color: #1a237e;
-    color: white;
-    padding: 12px 10px;
-    font-weight: bold;
-    font-size: 14px;
-    border: 1px solid #1a237e;
-}
-
-table td {
-    padding: 12px 10px;
-    border: 1px solid #e0e0e0;
-    font-size: 13px;
-    color: #444;
-}
-
-table tr:nth-child(even) {
-    background-color: #f9f9f9;
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
 }
 
 .modal {
