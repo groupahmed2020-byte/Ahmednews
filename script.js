@@ -16,6 +16,14 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
+// تهيئة مكتبة الإيميل (استبدل PUBLIC_KEY بمفتاحك من موقع emailjs إن وُجد)
+emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");
+
+// بيانات الأدمن الافتراضية والبريد المربوط
+let currentAdminUsername = "admin";
+let currentAdminPassword = "admin123";
+const adminEmailAddress = "osama.salem@example.com"; // ضع هنا إيميلك الحقيقي الذي تريد استقبال البيانات عليه
+
 // عناصر الواجهة الأساسية
 const adminBtn = document.getElementById('adminBtn');
 const adminPanel = document.getElementById('adminPanel');
@@ -24,10 +32,10 @@ const modalUsername = document.getElementById('modalUsername');
 const modalPassword = document.getElementById('modalPassword');
 const submitLoginBtn = document.getElementById('submitLoginBtn');
 const closeLoginBtn = document.getElementById('closeLoginBtn');
+const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
 
 const newsForm = document.getElementById('newsForm');
 const newsFile = document.getElementById('newsFile');
-
 const newsImgUrl = document.getElementById('newsImgUrl');
 const newsVideoUrl = document.getElementById('newsVideoUrl');
 const newsFileUrlField = document.getElementById('newsFileUrlField');
@@ -44,7 +52,7 @@ const newsContainerEn = document.getElementById('newsContainerEn');
 const btnLangAr = document.getElementById('btn-lang-ar');
 const btnLangEn = document.getElementById('btn-lang-en');
 
-// عناصر شريط الأخبار العاجلة الجديد وإدارته
+// عناصر شريط الأخبار العاجلة وإدارته
 const tickerWrapper = document.getElementById('tickerWrapper');
 const tickerTitle = document.getElementById('tickerTitle');
 const tickerText = document.getElementById('tickerText');
@@ -101,7 +109,7 @@ adminBtn.addEventListener('click', () => {
 closeLoginBtn.addEventListener('click', () => { loginModal.style.display = 'none'; });
 
 submitLoginBtn.addEventListener('click', () => {
-    if (modalUsername.value === "admin" && modalPassword.value === "admin123") {
+    if (modalUsername.value === currentAdminUsername && modalPassword.value === currentAdminPassword) {
         adminPanel.style.display = 'block';
         adminBtn.innerText = "خروج الأدمن";
         loginModal.style.display = 'none';
@@ -114,6 +122,34 @@ submitLoginBtn.addEventListener('click', () => {
     }
 });
 
+// منطق استعادة بيانات الدخول وإرسالها بالإيميل عند الضغط على نسيت كلمة المرور
+forgotPasswordBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    
+    if(confirm(`هل تريد إرسال اسم المستخدم وكلمة المرور الحالية إلى البريد الإلكتروني المربوط بالأدمن؟`)) {
+        forgotPasswordBtn.innerText = "جاري الإرسال...";
+        
+        // بناء قالب البيانات المرسلة
+        const emailParams = {
+            to_email: adminEmailAddress,
+            subject: "بيانات استعادة دخول أدمن - موقع أحمد الإخباري",
+            message: `مرحباً أدمن، إليك بيانات الدخول الحالية الخاصة بك للموقع:\n\nاسم المستخدم: ${currentAdminUsername}\nكلمة المرور: ${currentAdminPassword}`
+        };
+
+        // إرسال عبر خدمة EmailJS المجانية سحابياً
+        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', emailParams)
+            .then(() => {
+                alert(`تم إرسال بيانات الدخول بنجاح إلى الإيميل: ${adminEmailAddress}`);
+                forgotPasswordBtn.innerText = "نسيت كلمة المرور؟";
+            }, (error) => {
+                console.error("Failed to send email: ", error);
+                // خطة بديلة منبثقة فورية في حال عدم تهيئة مفاتيح إيميلJS بعد للسهولة
+                alert(`تنبيه (معاينة): نظراً لعدم ربط مفاتيح سحابية، إليك بياناتك الحالية:\nاسم المستخدم: ${currentAdminUsername}\nكلمة المرور: ${currentAdminPassword}`);
+                forgotPasswordBtn.innerText = "نسيت كلمة المرور؟";
+            });
+    }
+});
+
 function getYoutubeEmbedUrl(url) {
     if (!url) return null;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -121,34 +157,37 @@ function getYoutubeEmbedUrl(url) {
     return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
 }
 
-// دالة جلب وتحديث شريط الأخبار العاجلة وإظهار لوحة إدارتها للأدمن
+// دالة جلب وتحديث شريط الأخبار العاجلة لوحة إدارتها للأدمن
 async function loadTickerNews() {
     try {
-        const q = query(collection(db, "breaking_news"), orderBy("timestamp", "desc"));
-        const querySnapshot = await getDocs(q);
+        let querySnapshot;
+        try {
+            const q = query(collection(db, "breaking_news"), orderBy("timestamp", "desc"));
+            querySnapshot = await getDocs(q);
+        } catch (orderError) {
+            querySnapshot = await getDocs(collection(db, "breaking_news"));
+        }
         
         let tickerTitles = [];
-        if (isAdminLoggedIn) tickerAdminList.innerHTML = "";
+        if (tickerAdminList) tickerAdminList.innerHTML = "";
         
         querySnapshot.forEach((docSnap) => {
             const tickerData = docSnap.data();
             const id = docSnap.id;
 
-            // تجميع الأخبار العاجلة للشريط العام بحسب اللغة المختارة للشاشة
             if (tickerData.language === currentLanguage) {
                 tickerTitles.push(tickerData.text);
             }
 
-            // إذا كان الأدمن مسجل دخوله، نقوم ببناء جدول التحكم في لوحة الأدمن
-            if (isAdminLoggedIn) {
+            if (isAdminLoggedIn && tickerAdminList) {
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = "1px solid #ddd";
                 tr.innerHTML = `
-                    <td style="padding: 8px;">${tickerData.language === 'en' ? 'English' : 'العربية'}</td>
-                    <td style="padding: 8px; word-break: break-all;">${tickerData.text}</td>
-                    <td style="padding: 8px; text-align: center; white-space: nowrap;">
-                        <button class="btn-ticker-edit" data-id="${id}" data-text="${tickerData.text}" data-lang="${tickerData.language}" style="background-color:#ff9800; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; margin-left:5px;">تعديل</button>
-                        <button class="btn-ticker-delete" data-id="${id}" style="background-color:#f44336; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">حذف</button>
+                    <td style="padding: 10px;">${tickerData.language === 'en' ? 'English' : 'العربية'}</td>
+                    <td style="padding: 10px; word-break: break-all;">${tickerData.text}</td>
+                    <td style="padding: 10px; text-align: center; white-space: nowrap;">
+                        <button class="btn-ticker-edit" data-id="${id}" data-text="${tickerData.text}" data-lang="${tickerData.language}" style="background-color:#ff9800; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-left:5px; font-weight:bold;">تعديل</button>
+                        <button class="btn-ticker-delete" data-id="${id}" style="background-color:#f44336; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-weight:bold;">حذف</button>
                     </td>
                 `;
                 tickerAdminList.appendChild(tr);
@@ -170,7 +209,6 @@ async function loadTickerNews() {
     }
 }
 
-// إضافة المستمعات لأزرار التعديل والحذف الخاصة بالأخبار العاجلة داخل جدول الأدمن
 function addTickerActionsListeners() {
     document.querySelectorAll('.btn-ticker-delete').forEach(btn => {
         btn.addEventListener('click', async (e) => {
@@ -210,7 +248,6 @@ function resetTickerForm() {
     btnCancelTickerEdit.style.display = "none";
 }
 
-// معالجة إرسال فورم الخبر العاجل (إضافة أو تعديل)
 tickerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = editTickerId.value;
@@ -233,6 +270,19 @@ tickerForm.addEventListener('submit', async (e) => {
     } catch (error) {
         console.error("Error saving ticker: ", error);
     }
+});
+
+// نموذج تحديث بيانات حساب الأدمن برمجياً وربط الحساب الجديد بالذاكرة الحالية
+document.getElementById('adminUpdateForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const newUser = document.getElementById('newAdminUsername').value.trim();
+    const newPass = document.getElementById('newAdminPassword').value.trim();
+    
+    if(newUser) currentAdminUsername = newUser;
+    if(newPass) currentAdminPassword = newPass;
+    
+    alert("تم تحديث بيانات حساب الأدمن بنجاح وسيتم استخدامها للاستعادة ولتسجيل الدخول!");
+    document.getElementById('adminUpdateForm').reset();
 });
 
 // دالة جلب وعرض الأخبار العادية
@@ -426,42 +476,4 @@ newsForm.addEventListener('submit', async (e) => {
             const storageRef = ref(storage, 'uploads/' + Date.now() + '_' + selectedFile.name);
             const uploadTask = uploadBytesResumable(storageRef, selectedFile);
 
-            await new Promise((resolve, reject) => {
-                uploadTask.on('state_changed', 
-                    (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        uploadProgressBar.style.width = progress + '%';
-                    }, 
-                    (error) => reject(error), 
-                    async () => {
-                        data.fileUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                        data.fileType = selectedFile.type;
-                        resolve();
-                    }
-                );
-            });
-        }
-
-        if (id) {
-            await updateDoc(doc(db, "news", id), data);
-            alert("تم تحديث الخبر بنجاح!");
-        } else {
-            data.timestamp = new Date();
-            await addDoc(collection(db, "news"), data);
-            alert("تم نشر الخبر بنجاح!");
-        }
-        
-        resetForm();
-        uploadProgressContainer.style.display = 'none';
-        uploadProgressBar.style.width = '0%';
-        loadNews();
-        
-    } catch (error) {
-        console.error(error);
-        uploadProgressContainer.style.display = 'none';
-    }
-});
-
-// التشغيل الأولي للموقع والشريط الإخباري
-loadNews();
-loadTickerNews();
+       
