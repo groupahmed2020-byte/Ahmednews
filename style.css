@@ -84,15 +84,12 @@ nav ul li a {
     background-color: #e68a00;
 }
 
-/* ==========================================================================
-   تنسيق صندوق الأخبار العاجلة الثابت (تم التعديل لإلغاء نظام شريط الحركة السريع)
-   ========================================================================== */
 .ticker-wrapper {
     display: flex;
     align-items: center;
     background-color: #d32f2f;
     color: white;
-    min-height: 40px; /* ليتمدد الصندوق تلقائياً لأسفل إن كان النص طويلاً */
+    min-height: 40px;
     overflow: hidden;
     position: relative;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -119,24 +116,21 @@ nav ul li a {
     width: 100%;
     display: flex;
     align-items: center;
-    padding: 0 15px; /* مسافة داخلية مريحة حول النص */
+    padding: 0 15px;
 }
 
 .ticker-text {
     display: block;
-    white-space: normal; /* السماح للنص بالنزول لسطر جديد تلقائياً عند الحاجة */
+    white-space: normal;
     font-weight: 500;
     font-size: 14px;
     line-height: 1.4;
-    animation: none !important; /* إلغاء الحركة تماماً */
-}
-
-/* إلغاء الأنيميشن في حالة الاتجاه الأجنبي أيضاً */
-.ticker-wrapper[dir="ltr"] .ticker-text {
     animation: none !important;
 }
 
-/* ========================================================================== */
+.ticker-wrapper[dir="ltr"] .ticker-text {
+    animation: none !important;
+}
 
 table th, table td {
     border: 1px solid #ddd;

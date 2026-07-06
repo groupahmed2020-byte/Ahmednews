@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -57,9 +57,20 @@ const btnPublishTicker = document.getElementById('btn-publish-ticker');
 const btnCancelTickerEdit = document.getElementById('btn-cancel-ticker-edit');
 const tickerAdminList = document.getElementById('tickerAdminList');
 
+// متغيرات الصلاحية الجديدة والمستخدم الحالي
 let isAdminLoggedIn = false;
+let currentUserRole = null; 
+let currentUserDocId = null;
 let currentSelectedCategory = "all";
 let currentLanguage = "ar";
+
+// عناصر واجهة إدارة الأعضاء المضافة حديثاً للآدمن الرئيسي
+const superAdminSection = document.getElementById('superAdminSection');
+const addMemberForm = document.getElementById('addMemberForm');
+const memberUsername = document.getElementById('memberUsername');
+const memberPassword = document.getElementById('memberPassword');
+const membersListTable = document.getElementById('membersListTable');
+const adminUpdateForm = document.getElementById('adminUpdateForm');
 
 btnLangAr.addEventListener('click', () => {
     btnLangAr.classList.add('active');
@@ -93,6 +104,9 @@ adminBtn.addEventListener('click', () => {
         adminPanel.style.display = 'none';
         adminBtn.innerText = "دخول الأدمن";
         isAdminLoggedIn = false;
+        currentUserRole = null;
+        currentUserDocId = null;
+        superAdminSection.style.display = 'none';
         loadNews();
         loadTickerNews();
     }
@@ -100,17 +114,58 @@ adminBtn.addEventListener('click', () => {
 
 closeLoginBtn.addEventListener('click', () => { loginModal.style.display = 'none'; });
 
-submitLoginBtn.addEventListener('click', () => {
-    if (modalUsername.value === "admin" && modalPassword.value === "admin123") {
-        adminPanel.style.display = 'block';
-        adminBtn.innerText = "خروج الأدمن";
-        loginModal.style.display = 'none';
-        isAdminLoggedIn = true;
-        alert("تم تسجيل الدخول بنجاح!");
-        loadNews();
-        loadTickerNews();
-    } else {
-        alert("اسم المستخدم أو كلمة المرور غير صحيحة!");
+// تسجيل دخول سحابي مع فحص رتبة العضو وصلاحياته
+submitLoginBtn.addEventListener('click', async () => {
+    const enteredUser = modalUsername.value.trim();
+    const enteredPass = modalPassword.value.trim();
+
+    if(!enteredUser || !enteredPass) {
+        alert("يرجى تعبئة كافة الحقول أولاً!");
+        return;
+    }
+
+    try {
+        const q = query(collection(db, "users"), where("username", "==", enteredUser), where("password", "==", enteredPass));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const userDoc = querySnapshot.docs[0];
+            const userData = userDoc.data();
+            
+            currentUserRole = userData.role; 
+            currentUserDocId = userDoc.id;
+            isAdminLoggedIn = true;
+
+            adminPanel.style.display = 'block';
+            adminBtn.innerText = "خروج الأدمن";
+            loginModal.style.display = 'none';
+            alert(`تم تسجيل الدخول بنجاح! الصلاحية: ${currentUserRole === 'super_admin' ? 'المدير العام' : 'عضو كاتب'}`);
+
+            if (currentUserRole === 'super_admin') {
+                superAdminSection.style.display = 'block';
+                loadMembersList(); 
+            } else {
+                superAdminSection.style.display = 'none';
+            }
+
+            loadNews();
+            loadTickerNews();
+        } else {
+            // كود الحماية الاحتياطي لأول تشغيل للموقع في حال كان الـ Collection فارغاً
+            if (enteredUser === "admin" && enteredPass === "admin123") {
+                await addDoc(collection(db, "users"), {
+                    username: "admin",
+                    password: "admin123",
+                    role: "super_admin"
+                });
+                alert("تم إنشاء حساب الأدمن الرئيسي السحابي الأساسي، أعد الضغط على زر دخول الآن!");
+            } else {
+                alert("اسم المستخدم أو كلمة المرور غير صحيحة!");
+            }
+        }
+    } catch (error) {
+        console.error("Login Error: ", error);
+        alert("حدث خطأ ما أثناء فحص الحساب.");
     }
 });
 
@@ -121,7 +176,6 @@ function getYoutubeEmbedUrl(url) {
     return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
 }
 
-// دالة جلب وتحديث شريط الأخبار العاجلة وإظهار لوحة إدارتها للأدمن
 async function loadTickerNews() {
     try {
         const q = query(collection(db, "breaking_news"), orderBy("timestamp", "desc"));
@@ -134,12 +188,10 @@ async function loadTickerNews() {
             const tickerData = docSnap.data();
             const id = docSnap.id;
 
-            // تجميع الأخبار العاجلة للشريط العام بحسب اللغة المختارة للشاشة
             if (tickerData.language === currentLanguage) {
                 tickerTitles.push(tickerData.text);
             }
 
-            // إذا كان الأدمن مسجل دخوله، نقوم ببناء جدول التحكم في لوحة الأدمن
             if (isAdminLoggedIn) {
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = "1px solid #ddd";
@@ -170,7 +222,6 @@ async function loadTickerNews() {
     }
 }
 
-// إضافة المستمعات لأزرار التعديل والحذف الخاصة بالأخبار العاجلة داخل جدول الأدمن
 function addTickerActionsListeners() {
     document.querySelectorAll('.btn-ticker-delete').forEach(btn => {
         btn.addEventListener('click', async (e) => {
@@ -210,7 +261,6 @@ function resetTickerForm() {
     btnCancelTickerEdit.style.display = "none";
 }
 
-// معالجة إرسال فورم الخبر العاجل (إضافة أو تعديل)
 tickerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = editTickerId.value;
@@ -235,7 +285,6 @@ tickerForm.addEventListener('submit', async (e) => {
     }
 });
 
-// دالة جلب وعرض الأخبار العادية
 async function loadNews() {
     try {
         const q = query(collection(db, "news"), orderBy("timestamp", "desc"));
@@ -274,7 +323,7 @@ async function loadNews() {
                 if (ytEmbed) {
                     mediaHtml += `<div style="margin-bottom:15px;"><iframe width="100%" height="315" src="${ytEmbed}" frameborder="0" allowfullscreen style="border-radius:6px;"></iframe></div>`;
                 } else {
-                    mediaHtml += `<video src="${news.videoUrl}" controls style="width:100%; max-height:350px; border-radius:6px; margin-bottom:15px;"></video>`;
+                    mediaHtml += `<video src="${news.videoUrl}" controls style="width:100%; max-height:350px; border-radius:6px; margin-bottom:15px vanquish;"></video>`;
                 }
             }
 
@@ -435,33 +484,4 @@ newsForm.addEventListener('submit', async (e) => {
                     (error) => reject(error), 
                     async () => {
                         data.fileUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                        data.fileType = selectedFile.type;
-                        resolve();
-                    }
-                );
-            });
-        }
-
-        if (id) {
-            await updateDoc(doc(db, "news", id), data);
-            alert("تم تحديث الخبر بنجاح!");
-        } else {
-            data.timestamp = new Date();
-            await addDoc(collection(db, "news"), data);
-            alert("تم نشر الخبر بنجاح!");
-        }
-        
-        resetForm();
-        uploadProgressContainer.style.display = 'none';
-        uploadProgressBar.style.width = '0%';
-        loadNews();
-        
-    } catch (error) {
-        console.error(error);
-        uploadProgressContainer.style.display = 'none';
-    }
-});
-
-// التشغيل الأولي للموقع والشريط الإخباري
-loadNews();
-loadTickerNews();
+    
