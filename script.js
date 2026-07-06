@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -57,13 +57,6 @@ const btnPublishTicker = document.getElementById('btn-publish-ticker');
 const btnCancelTickerEdit = document.getElementById('btn-cancel-ticker-edit');
 const tickerAdminList = document.getElementById('tickerAdminList');
 
-// العناصر الجديدة لإدارة الأعضاء
-const mainAdminOnlySection = document.getElementById('mainAdminOnlySection');
-const addUserForm = document.getElementById('addUserForm');
-const newMemberName = document.getElementById('newMemberName');
-const newMemberUsername = document.getElementById('newMemberUsername');
-const newMemberPassword = document.getElementById('newMemberPassword');
-
 let isAdminLoggedIn = false;
 let currentSelectedCategory = "all";
 let currentLanguage = "ar";
@@ -107,95 +100,17 @@ adminBtn.addEventListener('click', () => {
 
 closeLoginBtn.addEventListener('click', () => { loginModal.style.display = 'none'; });
 
-// منطق التحقق المزدوج: أدمن رئيسي أو مستخدم سحابي
-submitLoginBtn.addEventListener('click', async () => {
-    const userVal = modalUsername.value.trim();
-    const passVal = modalPassword.value.trim();
-
-    if (!userVal || !passVal) {
-        alert("الرجاء تعبئة كافة الحقول المطلوبة!");
-        return;
-    }
-
-    // 1. فحص حساب الادمن الرئيسي المباشر
-    if (userVal === "admin" && passVal === "admin123") {
-        completeLoginSequence(true, "الأدمن الرئيسي");
-        return;
-    }
-
-    // 2. فحص الحسابات من مجموعة المستخدمين المضافة في Firestore
-    try {
-        const usersRef = collection(db, "users");
-        const q = query(usersRef, where("username", "==", userVal.toLowerCase()), where("password", "==", passVal));
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-            const loggedInUser = querySnapshot.docs[0].data();
-            completeLoginSequence(false, loggedInUser.name);
-        } else {
-            alert("خطأ: اسم المستخدم أو كلمة المرور المدخلة غير صحيحة!");
-        }
-    } catch (error) {
-        console.error("Login verification failed: ", error);
-        alert("حدث خطأ تقني أثناء محاولة الاستعلام، يرجى المحاولة لاحقاً.");
-    }
-});
-
-function completeLoginSequence(isMainAdmin, nameToDisplay) {
-    adminPanel.style.display = 'block';
-    adminBtn.innerText = `خروج (${nameToDisplay})`;
-    loginModal.style.display = 'none';
-    isAdminLoggedIn = true;
-
-    // إخفاء أو إظهار أدوات الإدارة الحساسة حسب الرتبة
-    if (isMainAdmin) {
-        mainAdminOnlySection.style.display = "block";
+submitLoginBtn.addEventListener('click', () => {
+    if (modalUsername.value === "admin" && modalPassword.value === "admin123") {
+        adminPanel.style.display = 'block';
+        adminBtn.innerText = "خروج الأدمن";
+        loginModal.style.display = 'none';
+        isAdminLoggedIn = true;
+        alert("تم تسجيل الدخول بنجاح!");
+        loadNews();
+        loadTickerNews();
     } else {
-        mainAdminOnlySection.style.display = "none";
-    }
-
-    alert(`مرحباً بك يا ${nameToDisplay}، تم الدخول بنجاح للموقع.`);
-    loadNews();
-    loadTickerNews();
-}
-
-// معالجة إضافة عضو جديد وحفظه سحابياً
-addUserForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const name = newMemberName.value.trim();
-    const username = newMemberUsername.value.trim().toLowerCase();
-    const password = newMemberPassword.value.trim();
-
-    if (username === "admin") {
-        alert("لا يمكن حجز اسم المستخدم 'admin' لأنه مخصص للأدمن الرئيسي!");
-        return;
-    }
-
-    try {
-        // فحص مسبق لعدم تكرار اليوزر نيم
-        const qCheck = query(collection(db, "users"), where("username", "==", username));
-        const checkSnap = await getDocs(qCheck);
-
-        if (!checkSnap.empty) {
-            alert("اسم المستخدم هذا مأخوذ مسبقاً! يرجى اختيار اسم آخر.");
-            return;
-        }
-
-        // الحفظ في كولكشن users
-        await addDoc(collection(db, "users"), {
-            name: name,
-            username: username,
-            password: password,
-            timestamp: new Date()
-        });
-
-        alert(`تمت إضافة العضو بنجاح وتفعيل حسابه: ${name}`);
-        addUserForm.reset();
-
-    } catch (error) {
-        console.error("Error adding member: ", error);
-        alert("فشل في إضافة العضو الجديد.");
+        alert("اسم المستخدم أو كلمة المرور غير صحيحة!");
     }
 });
 
@@ -206,6 +121,7 @@ function getYoutubeEmbedUrl(url) {
     return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
 }
 
+// دالة جلب وتحديث شريط الأخبار العاجلة وإظهار لوحة إدارتها للأدمن
 async function loadTickerNews() {
     try {
         const q = query(collection(db, "breaking_news"), orderBy("timestamp", "desc"));
@@ -218,10 +134,12 @@ async function loadTickerNews() {
             const tickerData = docSnap.data();
             const id = docSnap.id;
 
+            // تجميع الأخبار العاجلة للشريط العام بحسب اللغة المختارة للشاشة
             if (tickerData.language === currentLanguage) {
                 tickerTitles.push(tickerData.text);
             }
 
+            // إذا كان الأدمن مسجل دخوله، نقوم ببناء جدول التحكم في لوحة الأدمن
             if (isAdminLoggedIn) {
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = "1px solid #ddd";
@@ -252,14 +170,8 @@ async function loadTickerNews() {
     }
 }
 
+// إضافة المستمعات لأزرار التعديل والحذف الخاصة بالأخبار العاجلة داخل جدول الأدمن
 function addTickerActionsListeners() {
-    document.querySelectorAll('.btn-ticker-delete').forEach(btn => {
-        btn.replaceWith(btn.cloneNode(true)); 
-    });
-    document.querySelectorAll('.btn-ticker-edit').forEach(btn => {
-        btn.replaceWith(btn.cloneNode(true));
-    });
-
     document.querySelectorAll('.btn-ticker-delete').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             const id = e.target.getAttribute('data-id');
@@ -298,6 +210,7 @@ function resetTickerForm() {
     btnCancelTickerEdit.style.display = "none";
 }
 
+// معالجة إرسال فورم الخبر العاجل (إضافة أو تعديل)
 tickerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = editTickerId.value;
@@ -322,6 +235,7 @@ tickerForm.addEventListener('submit', async (e) => {
     }
 });
 
+// دالة جلب وعرض الأخبار العادية
 async function loadNews() {
     try {
         const q = query(collection(db, "news"), orderBy("timestamp", "desc"));
@@ -443,13 +357,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 
 function addActionsEventListeners() {
     document.querySelectorAll('.btn-delete').forEach(button => {
-        button.replaceWith(button.cloneNode(true));
-    });
-    document.querySelectorAll('.btn-edit').forEach(button => {
-        button.replaceWith(button.cloneNode(true));
-    });
-
-    document.querySelectorAll('.btn-delete').forEach(button => {
         button.addEventListener('click', async (e) => {
             const id = e.target.getAttribute('data-id');
             if (confirm("هل أنت متأكد من حذف هذا البوست نهائياً؟")) {
@@ -501,4 +408,60 @@ newsForm.addEventListener('submit', async (e) => {
     const category = document.getElementById('newsCategory').value;
     const title = document.getElementById('newsTitle').value;
     const content = document.getElementById('newsContent').value;
-    const selectedFile = 
+    const selectedFile = newsFile.files[0];
+    
+    let data = { 
+        language: lang, 
+        category: category, 
+        title: title, 
+        content: content,
+        imgUrl: newsImgUrl.value.trim(),
+        videoUrl: newsVideoUrl.value.trim(),
+        fileUrlField: newsFileUrlField.value.trim()
+    };
+
+    try {
+        if (selectedFile) {
+            uploadProgressContainer.style.display = 'block';
+            const storageRef = ref(storage, 'uploads/' + Date.now() + '_' + selectedFile.name);
+            const uploadTask = uploadBytesResumable(storageRef, selectedFile);
+
+            await new Promise((resolve, reject) => {
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        uploadProgressBar.style.width = progress + '%';
+                    }, 
+                    (error) => reject(error), 
+                    async () => {
+                        data.fileUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                        data.fileType = selectedFile.type;
+                        resolve();
+                    }
+                );
+            });
+        }
+
+        if (id) {
+            await updateDoc(doc(db, "news", id), data);
+            alert("تم تحديث الخبر بنجاح!");
+        } else {
+            data.timestamp = new Date();
+            await addDoc(collection(db, "news"), data);
+            alert("تم نشر الخبر بنجاح!");
+        }
+        
+        resetForm();
+        uploadProgressContainer.style.display = 'none';
+        uploadProgressBar.style.width = '0%';
+        loadNews();
+        
+    } catch (error) {
+        console.error(error);
+        uploadProgressContainer.style.display = 'none';
+    }
+});
+
+// التشغيل الأولي للموقع والشريط الإخباري
+loadNews();
+loadTickerNews();
