@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقع أحمد الأخباري | Ahmad News</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <h1>أحمد الأخباري</h1>
+            </div>
+            <nav id="main-nav">
+                <ul class="nav-links">
+                    <li><a href="#" class="filter-btn active" data-filter="all">الرئيسية</a></li>
+                    <li><a href="#" class="filter-btn" data-filter="سياسة">سياسة</a></li>
+                    <li><a href="#" class="filter-btn" data-filter="اقتصاد">اقتصاد</a></li>
+                    <li><a href="#" class="filter-btn" data-filter="تكنولوجيا">تكنولوجيا</a></li>
+                    <li><a href="#" class="filter-btn" data-filter="محليات">محليات</a></li>
+                    <li><a href="#" class="filter-btn" data-filter="دينية">دينية</a></li>
+                    <li><a href="#" class="filter-btn" data-filter="دراسات وأبحاث">دراسات وأبحاث</a></li>
+                    <li><a href="#" class="filter-btn" data-filter="English News">English News</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <button id="theme-toggle" title="تغيير المظهر"><i class="fas fa-moon"></i></button>
+                <a href="admin.html" id="admin-login-icon" title="لوحة الإدارة"><i class="fas fa-user-cog"></i></a>
+                <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <div class="ticker-wrapper">
+        <div class="ticker-title">عاجل</div>
+        <div class="ticker-content">
+            <div class="ticker-items" id="urgent-ticker">
+                <span>جاري تحميل الأخبار العاجلة...</span>
+            </div>
+        </div>
+    </div>
+
+    <main class="container main-grid">
+        <section class="news-section">
+            <div class="news-grid" id="news-container">
+                <p>جاري تحميل الأخبار...</p>
+            </div>
+        </section>
+
+        <aside class="sidebar">
+            <div class="widget weather-widget">
+                <h3>حالة الطقس</h3>
+                <div class="weather-info"><i class="fas fa-sun"></i> 28°C مشمس</div>
+            </div>
+        </aside>
+    </main>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
