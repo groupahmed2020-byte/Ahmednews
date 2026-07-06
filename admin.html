@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - موقع أحمد الإخباري</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="login-portal" id="login-portal">
+        <div class="login-card">
+            <h2>🔐 تسجيل دخول الكادر</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>اسم المستخدم:</label>
+                    <input type="text" id="login-username" required placeholder="ادخل اسم المستخدم">
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور:</label>
+                    <input type="password" id="login-password" required placeholder="ادخل كلمة المرور">
+                </div>
+                <button type="submit" class="btn-submit">دخول سريع</button>
+            </form>
+            <p id="login-error" class="error-msg"></p>
+        </div>
+    </div>
+
+    <div class="dashboard-wrapper hidden" id="dashboard-area">
+        <header class="dash-header">
+            <div class="container dash-nav">
+                <h2>🎛️ لوحة تحكم النظام (<span id="user-role-display">مسؤول</span>)</h2>
+                <div>
+                    <span id="welcome-message">مرحباً، أحمد</span>
+                    <button id="logout-btn" class="btn-danger">خروج</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="container dash-content">
+            
+            <section class="dash-box">
+                <h3>👤 تعديل الحساب والملف الشخصي</h3>
+                <form id="profile-update-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>تعديل اسم المستخدم الحالي:</label>
+                            <input type="text" id="profile-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تعديل كلمة المرور الجديدة:</label>
+                            <input type="password" id="profile-password" required placeholder="كلمة مرور جديدة">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">تحديث بياناتي</button>
+                </form>
+            </section>
+
+            <section class="dash-box admin-only-section" id="admin-members-section">
+                <h3>👥 إدارة شؤون الأعضاء والوظائف (خاص بالمسؤول)</h3>
+                <form id="add-member-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>اسم العضو الجديد:</label>
+                            <input type="text" id="new-member-username" placeholder="مثال: osama_salem">
+                        </div>
+                        <div class="form-group">
+                            <label>كلمة مرور العضو:</label>
+                            <input type="password" id="new-member-password" placeholder="كلمة المرور">
+                        </div>
+                        <div class="form-group">
+                            <label>الصلاحية:</label>
+                            <select id="new-member-role">
+                                <option value="member">عضو (إضافة/تعديل/حذف منشورات فقط)</option>
+                                <option value="admin">مسؤول كامل الصلاحيات</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-add">إضافة العضو الجديد</button>
+                </form>
+
+                <div class="members-table-wrapper">
+                    <h4>قائمة الحسابات النشطة وإمكانية تعديلها:</h4>
+                    <table class="custom-table" id="members-table">
+                        <thead>
+                            <tr>
+                                <th>اسم المستخدم</th>
+                                <th>الرتبة</th>
+                                <th>تعديل الحساب</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="dash-box">
+                <h3>✍️ إضافة منشور جديد (أخبار / دراسات)</h3>
+                <form id="add-post-form">
+                    <div class="form-group">
+                        <label>عنوان الخبر / الدراسة:</label>
+                        <input type="text" id="post-title" required placeholder="أدخل العنوان الرئيسي">
+                    </div>
+                    <div class="form-group">
+                        <label>تفاصيل المحتوى:</label>
+                        <textarea id="post-content" rows="6" required placeholder="اكتب تفاصيل الخبر والمحتوى المطول هنا..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>القسم المخصص:</label>
+                            <select id="post-category">
+                                <option value="politics">سياسة</option>
+                                <option value="economy">اقتصاد</option>
+                                <option value="tech">تكنولوجيا</option>
+                                <option value="local">محليات</option>
+                                <option value="research">قسم الدراسات والأبحاث</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>حالة العرض:</label>
+                            <select id="post-status">
+                                <option value="published">منشور مباشر</option>
+                                <option value="draft">مسودة حِفظ</option>
+                                <option value="breaking">عاجل (يتحرك في الشريط)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <fieldset class="form-fieldset">
+                        <legend>🔗 مسارات الروابط المباشرة (URL Links)</legend>
+                        <div class="form-group">
+                            <label>رابط صورة بارزة (Image URL):</label>
+                            <input type="url" id="link-img" placeholder="https://example.com/image.jpg">
+                        </div>
+                        <div class="form-group">
+                            <label>رابط فيديو منفصل (Video URL):</label>
+                            <input type="url" id="link-video" placeholder="https://example.com/video.mp4">
+                        </div>
+                        <div class="form-group">
+                            <label>رابط مستندات منفصل (Document URL):</label>
+                            <input type="url" id="link-doc" placeholder="https://example.com/report.pdf">
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="form-fieldset">
+                        <legend>📱 تحميل ملفات مباشرة من ذاكرة الهاتف / الجهاز</legend>
+                        <div class="form-group">
+                            <label>تحميل صورة من الهاتف:</label>
+                            <input type="file" id="upload-img" accept="image/*">
+                        </div>
+                        <div class="form-group">
+                            <label>تحميل فيديو من الهاتف:</label>
+                            <input type="file" id="upload-video" accept="video/*">
+                        </div>
+                        <div class="form-group">
+                            <label>تحميل مستند (PDF, Word) من الهاتف:</label>
+                            <input type="file" id="upload-doc" accept=".pdf,.doc,.docx">
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="btn-submit-post">نشر وإدراج في الموقع</button>
+                </form>
+            </section>
+
+            <section class="dash-box admin-only-section" id="admin-ads-section">
+                <h3>📊 نظام التحكم بالإعلانات والمساحات (خاص بالمسؤول)</h3>
+                
+                <div class="ad-control-block">
+                    <h4>1. إعلانات Google AdSense التلقائية</h4>
+                    <div class="form-group">
+                        <label>كود أومعرف إعلانات Google AdSense:</label>
+                        <textarea id="adsense-code-input" rows="3" placeholder="ضع كود AdSense هنا... <ins class='adsbygoogle' ...></ins>"></textarea>
+                    </div>
+                    <button id="save-adsense-btn" class="btn-add">تحديث إعلانات AdSense</button>
+                </div>
+
+                <hr class="divider">
+
+                <div class="ad-control-block">
+                    <h4>2. الإعلانات المحلية الخاصة (Local Ads)</h4>
+                    <div class="form-group">
+                        <label>نوع الإعلان المحلي:</label>
+                        <select id="local-ad-type">
+                            <option value="image">صورة إعلانية</option>
+                            <option value="video">فيديو إعلاني</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>رفع ملف الإعلان من الهاتف/الجهاز:</label>
+                        <input type="file" id="local-ad-file" accept="image/*,video/*">
+                    </div>
+                    <button id="save-local-ad-btn" class="btn-add">تثبيت الإعلان المحلي</button>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
