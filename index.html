@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Sim - تحديث الرقم</title>
+    <style>
+        /* استخدام خطوط النظام لتجنب تحميل أي ملفات خطوط خارجية */
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            /* تصميم خلفية منقطة خفيفة بالـ CSS فقط بدون صور */
+            background-color: #f4f7f6;
+            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+            background-size: 25px 25px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 40px 24px;
+            width: 85%;
+            max-width: 340px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #0284c7; /* لون أزرق احترافي */
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .logo span {
+            color: #334155;
+        }
+
+        .title {
+            font-size: 22px;
+            color: #1e293b;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            color: #334155;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+            text-align: left;
+            direction: ltr; /* اتجاه الأرقام من اليسار لليمين */
+        }
+
+        .input-group input:focus {
+            border-color: #0284c7;
+        }
+
+        .btn {
+            width: 100%;
+            background-color: #38bdf8;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:active {
+            background-color: #0284c7;
+        }
+        
+        .lang-switch {
+            margin-top: 25px;
+            display: inline-block;
+            color: #0284c7;
+            text-decoration: none;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="logo">
+            Brand<span>Sim</span>
+        </div>
+        
+        <div class="title">مرحبا بك</div>
+        <div class="subtitle">الرجاء ادخال رقم الهاتف<br>لتحديث الرقم</div>
+
+        <form id="updateForm">
+            <div class="input-group">
+                <label for="phone">رقم الهاتف</label>
+                <input type="tel" id="phone" placeholder="05X XXX XXXX" required pattern="[0-9]{10}" title="يرجى إدخال 10 أرقام">
+            </div>
+            
+            <button type="submit" class="btn" id="submitBtn">تحديث</button>
+        </form>
+
+        <a href="#" class="lang-switch">עברית</a>
+    </div>
+
+    <script>
+        // كود برمجي بسيط جداً لمعالجة الطلب
+        document.getElementById('updateForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // منع إعادة تحميل الصفحة
+            
+            var phoneInput = document.getElementById('phone').value;
+            var btn = document.getElementById('submitBtn');
+            var originalText = btn.innerHTML;
+            
+            // تغيير حالة الزر للمستخدم
+            btn.innerHTML = 'جاري التحديث...';
+            btn.style.backgroundColor = '#94a3b8';
+            btn.disabled = true;
+
+            // هنا تضع كود الـ API الخاص بك لإرسال الرقم للخادم
+            // كمثال سنقوم بمحاكاة الطلب وإعادة الزر بعد ثانيتين
+            setTimeout(function() {
+                alert('تم استلام طلب التحديث للرقم: ' + phoneInput);
+                btn.innerHTML = originalText;
+                btn.style.backgroundColor = '#38bdf8';
+                btn.disabled = false;
+                document.getElementById('phone').value = ''; // تفريغ الحقل
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
