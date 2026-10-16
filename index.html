@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فاحص مواصفات الجهاز والشبكات و eSIM</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 520px;
+            width: 100%;
+            background: var(--card);
+            padding: 22px;
+            border-radius: 18px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            font-size: 1.4rem;
+            margin-top: 0;
+            margin-bottom: 18px;
+        }
+        .section-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #334155;
+            margin: 15px 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .spec-box {
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 16px;
+        }
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.92rem;
+        }
+        .spec-item:last-child {
+            border-bottom: none;
+        }
+        .spec-value {
+            font-weight: bold;
+            color: #0f172a;
+            direction: ltr;
+            text-align: left;
+        }
+        .esim-result {
+            text-align: center;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .yes { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .no { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .neutral { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+
+        /* الأزرار التفاعلية */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.98rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        .btn-dial {
+            background: var(--success);
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(22, 163, 74, 0.25);
+        }
+        .btn-dial:active { background: #15803d; }
+
+        .btn-network {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
+        }
+        .btn-network:active { background: var(--primary-dark); }
+
+        .btn-settings {
+            background: #475569;
+            color: #fff;
+            font-size: 0.88rem;
+            padding: 10px;
+        }
+
+        /* صندوق نتائج الشبكات */
+        #network-panel {
+            display: none;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        .net-badge {
+            display: inline-block;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+            border-radius: 8px;
+            margin: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #1e293b;
+        }
+        .net-badge span {
+            color: var(--success);
+            font-size: 0.78rem;
+        }
+
+        .manual-check {
+            margin-top: 12px;
+            margin-bottom: 16px;
+        }
+        select {
+            width: 100%;
+            padding: 11px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.92rem;
+            margin-top: 8px;
+            background: #fff;
+        }
+        .toast {
+            display: none;
+            background: #0f172a;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+        .tip {
+            font-size: 0.85rem;
+            color: #64748b;
+            background: #fffbeb;
+            padding: 12px;
+            border-radius: 10px;
+            border-right: 4px solid #f59e0b;
+            margin: 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📱 فحص مواصفات الجهاز والشبكات و eSIM</h1>
+
+    <!-- مواصفات الجهاز التفصيلية -->
+    <div class="section-title">🔍 مواصفات الجهاز المكتشفة:</div>
+    <div class="spec-box">
+        <div class="spec-item">
+            <span>نوع الجهاز:</span>
+            <span class="spec-value" id="device-type">جاري الفحص...</span>
+        </div>
+        <div class="spec-item">
+            <span>الشركة والاسم التجاري:</span>
+            <span class="spec-value" id="brand-name">جاري الفحص...</span>
+        </div>
+        <div class="spec-item">
+            <span>رمز الموديل (Model ID):</span>
+            <span class="spec-value" id="model">جاري الفحص...</span>
+        </div>
+        <div class="spec-item">
+            <span>نظام التشغيل:</span>
+            <span class="spec-value" id="os">جاري الفحص...</span>
+        </div>
+        <div class="spec-item">
+            <span>المعالج (أنوية CPU):</span>
+            <span class="spec-value" id="cpu">جاري الفحص...</span>
+        </div>
+        <div class="spec-item">
+            <span>معالج الرسوميات (GPU):</span>
+            <span class="spec-value" id="gpu">جاري الفحص...</span>
+        </div>
+        <div class="spec-item">
+            <span>الذاكرة العشوائية (RAM):</span>
+            <span class="spec-value" id="ram">جاري الفحص...</span>
+        </div>
+        <div class="spec-item">
+            <span>أبعاد الشاشة (ودقة البكسل):</span>
+            <span class="spec-value" id="screen">جاري الفحص...</span>
+        </div>
+        <div class="spec-item">
+            <span>حالة البطارية:</span>
+            <span class="spec-value" id="battery">جاري الفحص...</span>
+        </div>
+    </div>
+
+    <!-- نتيجة دعم eSIM -->
+    <div id="esim-status" class="esim-result neutral">
+        جاري التحقق من دعم الشريحة الإلكترونية (eSIM)...
+    </div>
+
+    <!-- إشعار النسخ -->
+    <div id="toast-msg" class="toast"></div>
+
+    <!-- أزرار الاتصال وفحص الشبكات -->
+    <div class="btn-group">
+        <button class="action-btn btn-dial" onclick="dialEIDCode()">
+            📞 اتصال وفحص كود *#06# (مع نسخ تلقائي)
+        </button>
+
+        <button class="action-btn btn-network" onclick="scanAvailableNetworks()">
+            📡 بحث سريع عن الشبكات المتاحة والاتصال الحالي
+        </button>
+    </div>
+
+    <!-- نافذة نتائج الشبكات المتاحة -->
+    <div id="network-panel">
+        <div class="section-title" style="margin-top:0;">🌐 نتائج فحص الشبكة والشبكات المتاحة:</div>
+        <div class="spec-item">
+            <span>الشبكة المتصلة حالياً (المزود):</span>
+            <span class="spec-value" id="isp-name">جاري البحث...</span>
+        </div>
+        <div class="spec-item">
+            <span>الدولة / المنطقة:</span>
+            <span class="spec-value" id="country-name">جاري البحث...</span>
+        </div>
+        <div class="spec-item">
+            <span>نوع الجيل وسرعة الاتصال:</span>
+            <span class="spec-value" id="net-speed">جاري البحث...</span>
+        </div>
+        <div style="margin-top: 10px;">
+            <strong style="font-size: 0.88rem; color: #334155;">الشبكات المتاحة في منطقتك (ودعم eSIM):</strong>
+            <div id="local-operators" style="margin-top: 6px;">جاري جلب الشبكات...</div>
+        </div>
+        <button class="action-btn btn-settings" style="margin-top: 10px;" onclick="openAndroidNetworkSettings()">
+            ⚙️ فتح البحث اليدوي عن أبراج الشبكات في إعدادات الهاتف
+        </button>
+    </div>
+
+    <!-- التأكيد اليدوي -->
+    <div class="manual-check">
+        <label for="device-select"><strong>تأكيد يدوي سريع (في حال لم يظهر موديل جهازك):</strong></label>
+        <select id="device-select" onchange="checkManualDevice()">
+            <option value="">-- اختر نوع جهازك للتأكيد --</option>
+            <option value="yes">iPhone XR / XS / 11 / 12 / 13 / 14 / 15 / 16 أو أحدث</option>
+            <option value="no">iPhone X / 8 / 7 أو أقدم</option>
+            <option value="yes">Samsung Galaxy S20 / S21 / S22 / S23 / S24 / S25</option>
+            <option value="yes">Samsung Galaxy Z Flip / Z Fold (جميع الفئات)</option>
+            <option value="yes">Samsung Galaxy A54 / A55 / A35</option>
+            <option value="no">Samsung سلسلة A الأخرى (مثل A14 / A15 / A24 / A34)</option>
+            <option value="yes">Xiaomi 12T Pro / 13 / 14 / Redmi Note 13 Pro+</option>
+            <option value="no">Xiaomi Redmi 14C / 13C / 12C / Note 12 / Note 13 4G</option>
+            <option value="yes">Google Pixel 3 أو أحدث</option>
+        </select>
+    </div>
+
+    <p class="tip">
+        💡 <strong>ملاحظة هامة عند الضغط على زر (*#06#):</strong><br>
+        إذا فتح تطبيق الهاتف بدون كتابة الكود تلقائياً (بسبب حماية المتصفح)، فقط <strong>اضغط مطولاً واختر "لصق"</strong> لأن الموقع ينسخ الكود <code>*#06#</code> تلقائياً بمجرد ضغطك على الزر. إذا ظهر لك رقم <strong>EID</strong> فجهازك يدعم الشريحة الإلكترونية قاطعاً.
+    </p>
+</div>
+
+<script>
+    // قاعدة بيانات ذكية لترجمة رموز الهواتف الشهيرة وتحديد دعم eSIM
+    const knownModels = {
+        "2409BRN2CA": { name: "Xiaomi Redmi 14C", esim: false },
+        "2409BRN2CG": { name: "Xiaomi Redmi 14C", esim: false },
+        "2409BRN2CY": { name: "Xiaomi Redmi 14C", esim: false },
+        "23106RN0DA": { name: "Xiaomi Redmi 13C", esim: false },
+        "2312DRA50G": { name: "Redmi Note 13 Pro 5G", esim: true },
+        "23090RA98G": { name: "Redmi Note 13 Pro+ 5G", esim: true },
+        "SM-S928": { name: "Samsung Galaxy S24 Ultra", esim: true },
+        "SM-S921": { name: "Samsung Galaxy S24", esim: true },
+        "SM-S918": { name: "Samsung Galaxy S23 Ultra", esim: true },
+        "SM-A556": { name: "Samsung Galaxy A55 5G", esim: true },
+        "SM-A546": { name: "Samsung Galaxy A54 5G", esim: true },
+        "SM-A356": { name: "Samsung Galaxy A35 5G", esim: true },
+        "SM-A155": { name: "Samsung Galaxy A15", esim: false },
+        "SM-A145": { name: "Samsung Galaxy A14", esim: false }
+    };
+
+    // قاعدة بيانات الشبكات المتاحة حسب رمز الدولة
+    const countryNetworks = {
+        "PS": ["Jawwal (جوال)", "Ooredoo (أوريدو)"],
+        "IL": ["Pelephone", "Cellcom", "Partner", "HOT Mobile", "019 Mobile", "Wecom"],
+        "SA": ["STC (إس تي سي)", "Mobily (موبايلي)", "Zain (زين)", "Red Bull Mobile", "Salam"],
+        "AE": ["e& (اتصالات)", "du (دو)", "Virgin Mobile"],
+        "JO": ["Zain Jordan (زين)", "Orange Jordan (أورانج)", "Umniah (أمنية)"],
+        "EG": ["Vodafone (فودافون)", "Orange (أورانج)", "e& Egypt (اتصالات)", "WE (وي)"],
+        "KW": ["Zain (زين)", "Ooredoo (أوريدو)", "STC (إس تي سي)"],
+        "QA": ["Ooredoo (أوريدو)", "Vodafone (فودافون)"],
+        "OM": ["Omantel (عمانتل)", "Ooredoo (أوريدو)", "Vodafone (فودافون)"],
+        "BH": ["Batelco (بتلكو)", "Zain (زين)", "STC (إس تي سي)"],
+        "IQ": ["Zain Iraq (زين)", "Asiacell (آسياسيل)", "Korek (كورك)"]
+    };
+
+    // دالة استخراج معالج الرسوميات GPU
+    function getGPUInfo() {
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (gl) {
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                if (debugInfo) {
+                    return gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                }
+            }
+        } catch (e) {}
+        return "غير متاح";
+    }
+
+    // دالة تحديد الشركة المصنعة والاسم التجاري
+    function identifyBrandAndDevice(modelCode, os, gpu) {
+        for (const key in knownModels) {
+            if (modelCode.toUpperCase().includes(key)) {
+                return knownModels[key];
+            }
+        }
+        if (os.includes("iOS")) {
+            return { name: "Apple iPhone / iPad", esim: null };
+        }
+        if (/SM-/i.test(modelCode)) {
+            const isEsim = /SM-S9|SM-G98|SM-G99|SM-F9|SM-F7|SM-N98|SM-A54|SM-A55|SM-A35/i.test(modelCode);
+            return { name: "Samsung Galaxy (" + modelCode + ")", esim: isEsim };
+        }
+        if (/^\d{4}[A-Z0-9]{5,7}$/i.test(modelCode) || /Redmi|Mi |POCO/i.test(modelCode)) {
+            // معظم أجهزة شاومي الاقتصادية التي تبدأ بسنة مثل 2409 أو 2310 لا تدعم eSIM إلا الفئات العليا
+            return { name: "Xiaomi / Redmi / POCO", esim: false };
+        }
+        if (/Pixel/i.test(modelCode)) {
+            return { name: "Google " + modelCode, esim: true };
+        }
+        if (/HUAWEI|HONOR/i.test(modelCode)) {
+            return { name: "Huawei / Honor", esim: false };
+        }
+        return { name: modelCode, esim: null };
+    }
+
+    async function detectSpecs() {
+        const ua = navigator.userAgent;
+        let os = "غير معروف";
+        let model = "غير محدد";
+        let deviceType = "هاتف ذكي (Smartphone)";
+
+        // تحديد نوع الجهاز
+        if (/iPad|Tablet|PlayBook/i.test(ua) || (/Android/i.test(ua) && !/Mobile/i.test(ua))) {
+            deviceType = "جهاز لوحي (Tablet)";
+        } else if (!/Android|iPhone|iPod|Mobile/i.test(ua)) {
+            deviceType = "كمبيوتر (Desktop / Laptop)";
+        }
+
+        // تحديد نظام التشغيل والموديل المبدئي
+        if (/iPhone|iPad|iPod/.test(ua)) {
+            os = "iOS (Apple)";
+            model = "iPhone / iPad";
+        } else if (/Android/.test(ua)) {
+            const verMatch = ua.match(/Android\s([0-9\.]+)/);
+            os = verMatch ? `Android ${verMatch[1]}` : "Android";
+            const match = ua.match(/Android\s[0-9\.]*;\s([^;)]*)/);
+            if (match && match[1]) {
+                model = match[1].replace(/Build\/.*/i, "").trim();
+            }
+        } else if (/Windows/.test(ua)) {
+            os = "Windows";
+        } else if (/Mac/.test(ua)) {
+            os = "macOS";
+        }
+
+        // جلب الموديل الدقيق عبر Client Hints
+        if (navigator.userAgentData) {
+            try {
+                const values = await navigator.userAgentData.getHighEntropyValues(["model", "platformVersion"]);
+                if (values.model) model = values.model;
+            } catch (e) {}
+        }
+
+        const gpu = getGPUInfo();
+        const brandInfo = identifyBrandAndDevice(model, os, gpu);
+        const dpr = window.devicePixelRatio || 1;
+        const realW = Math.round(window.screen.width * dpr);
+        const realH = Math.round(window.screen.height * dpr);
+
+        // تحديث الواجهة
+        document.getElementById("device-type").innerText = deviceType;
+        document.getElementById("brand-name").innerText = brandInfo.name;
+        document.getElementById("model").innerText = model;
+        document.getElementById("os").innerText = os;
+        document.getElementById("cpu").innerText = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} Cores (أنوية)` : "غير متاح";
+        document.getElementById("gpu").innerText = gpu.replace(/ANGLE \((.*)\)/, "$1");
+        document.getElementById("ram").innerText = navigator.deviceMemory ? `~${navigator.deviceMemory} GB+` : "محمي من المتصفح";
+        document.getElementById("screen").innerText = `${window.screen.width}×${window.screen.height} (${realW}×${realH} px)`;
+
+        // فحص البطارية
+        if (navigator.getBattery) {
+            try {
+                const bat = await navigator.getBattery();
+                const level = Math.round(bat.level * 100) + "%";
+                const charging = bat.charging ? "⚡ جاري الشحن" : "غير متصل بالشاحن";
+                document.getElementById("battery").innerText = `${level} (${charging})`;
+            } catch (e) {
+                document.getElementById("battery").innerText = "غير متاح";
+            }
+        } else {
+            document.getElementById("battery").innerText = "غير مدعوم بالمتصفح";
+        }
+
+        // تحديد حالة eSIM
+        if (brandInfo.esim === true) {
+            updateEsimUI(true, `نعم (${brandInfo.name} يدعم الشريحة الإلكترونية)`);
+        } else if (brandInfo.esim === false) {
+            updateEsimUI(false, `لا (جهاز ${brandInfo.name} لا يدعم الشريحة الإلكترونية)`);
+        } else if (os.includes("iOS")) {
+            const height = Math.max(window.screen.width, window.screen.height);
+            if (height >= 812) {
+                updateEsimUI(true, "نعم (يدعم eSIM بناءً على أبعاد شاشة iPhone الحديث)");
+            } else {
+                updateEsimUI(false, "لا (إصدار iPhone قديم لا يدعم eSIM)");
+            }
+        } else {
+            const statusBox = document.getElementById("esim-status");
+            statusBox.className = "esim-result neutral";
+            statusBox.innerText = "ℹ️ يرجى التأكيد عبر زر الاتصال (*#06#) أو اختيار جهازك من القائمة بالأسفل";
+        }
+    }
+
+    function updateEsimUI(isSupported, message) {
+        const statusBox = document.getElementById("esim-status");
+        if (isSupported) {
+            statusBox.className = "esim-result yes";
+            statusBox.innerText = "✅ يدعم الشريحة الإلكترونية: " + message;
+        } else {
+            statusBox.className = "esim-result no";
+            statusBox.innerText = "❌ لا يدعم الشريحة الإلكترونية: " + message;
+        }
+    }
+
+    function checkManualDevice() {
+        const val = document.getElementById("device-select").value;
+        if (val === "yes") {
+            updateEsimUI(true, "نعم (بناءً على اختيارك اليدوي)");
+        } else if (val === "no") {
+            updateEsimUI(false, "لا (بناءً على اختيارك اليدوي)");
+        }
+    }
+
+    // دالة الاتصال بكود *#06# مع النسخ التلقائي
+    function dialEIDCode() {
+        const code = "*#06#";
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(code).catch(() => {});
+        }
+        const toast = document.getElementById("toast-msg");
+        toast.style.display = "block";
+        toast.innerText = "✅ تم نسخ الكود (*#06#) تلقائياً! جاري فتح لوحة الاتصال...";
+        setTimeout(() => { toast.style.display = "none"; }, 6000);
+
+        // فتح تطبيق الاتصال
+        window.location.href = "tel:*%2306%23";
+    }
+
+    // دالة البحث السريع عن الشبكات المتاحة ومعلومات الاتصال
+    async function scanAvailableNetworks() {
+        const panel = document.getElementById("network-panel");
+        panel.style.display = "block";
+
+        // 1. فحص سرعة ونوع الاتصال المحلي فوراً
+        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (conn) {
+            const type = conn.effectiveType ? conn.effectiveType.toUpperCase() : "غير محدد";
+            const speed = conn.downlink ? `${conn.downlink} Mbps` : "";
+            const rtt = conn.rtt ? `Ping: ${conn.rtt}ms` : "";
+            document.getElementById("net-speed").innerText = `${type} | ${speed} (${rtt})`;
+        } else {
